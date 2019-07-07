@@ -13,5 +13,6 @@ int32_t stepm_getRemainLines(void);
 int32_t stepm_getCurGlobalStepsNum(uint8_t id);
 void stepm_ZeroGlobalCrd(void);
 int32_t stepm_inProc(void);
+void step_dump();
 
 #endif /* STEPMOTOR_H_ */

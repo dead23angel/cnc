@@ -22,7 +22,7 @@ static short prev_scrX, prev_scrY;
 
 static int curGCodeMode;
 static uint32_t commonTimeIdeal, commonTimeReal, startWorkTime;
-static uint8_t isGcodeStop, isExtruderOn;
+static uint8_t isGcodeStop;
 
 static double minX, maxX, minY, maxY, minZ, maxZ;
 
@@ -84,7 +84,7 @@ static void initGcodeProc(void) {
  prev_scrX = crdXtoScr(TABLE_CENTER_X); prev_scrY = crdYtoScr(TABLE_CENTER_Y);
  linesBuffer.stepsFromStartX = linesBuffer.stepsFromStartY = linesBuffer.stepsFromStartZ = linesBuffer.stepsFromStartE = 0;
  linesBuffer.stepsX = linesBuffer.stepsY = linesBuffer.stepsZ = 0;
- isExtruderOn = FALSE;
+// isExtruderOn = FALSE;
  minX = maxX = minY = maxY = minZ = maxZ = 0;
  gc_init(); stepm_init();
  commonTimeIdeal = commonTimeReal = 0; isGcodeStop = FALSE;
@@ -114,7 +114,10 @@ void cnc_gfile(char *fileName, int mode) {
  }
  if((curGCodeMode & GFILE_MODE_MASK_EXEC) != 0) {
   scr_fontColor(Blue,Black); scr_gotoxy(3,14);
-  scr_puts("'C' - cancel  'A' - pause");
+  scr_puts("C-Cancel A-Pause ");
+#ifdef HAS_ENCODER
+  scr_puts("0/1-encoder");
+#endif
  }
  int lineNum = 1;
  uint8_t hasMoreLines = TRUE;
@@ -126,7 +129,7 @@ void cnc_gfile(char *fileName, int mode) {
    *p = 0; str = p+1;
    if((fileBuf+sizeof(fileBuf)-str) < (MAX_STR_SIZE+1)) break;
    if(f_gets(str, MAX_STR_SIZE, &fid) == NULL) {
-    hasMoreLines = TRUE; break;
+    hasMoreLines = FALSE; break;
    }
    str_trim(str); *p = (uint8_t)strlen(str)+1; p += *p+1;
   }  
@@ -151,6 +154,11 @@ void cnc_gfile(char *fileName, int mode) {
   //		}
    }
    DBG("\n   [gcode:%d] %s", lineNum, str);
+#ifdef DEBUG_MODE
+   if(lineNum == 49) {
+    Sleep(100);
+   }
+#endif
    unsigned char st = gc_execute_line(str);
    if(st!= GCSTATUS_OK) {
    	scr_fontColor(Red,Black); scr_gotoxy(1,12);
@@ -164,6 +172,7 @@ void cnc_gfile(char *fileName, int mode) {
      case GCSTATUS_TABLE_SIZE_OVER_X: scr_puts("GCSTATUS_TABLE_SIZE_OVER_X"); break;
      case GCSTATUS_TABLE_SIZE_OVER_Y: scr_puts("GCSTATUS_TABLE_SIZE_OVER_Y"); break;
      case GCSTATUS_TABLE_SIZE_OVER_Z: scr_puts("GCSTATUS_TABLE_SIZE_OVER_Z"); break;
+     case GCSTATUS_SUPPORT_ONLY_E_EXTRUDER: scr_puts("MAST BE 'E' field for extruder G1"); break;
      case GCSTATUS_CANCELED:	scr_puts("GCSTATUS_CANCELED");	break;
     }
     scr_printf(" in line [%d]:\n '%s'", lineNum, str);
@@ -206,20 +215,64 @@ void cnc_dwell(int pause) {
  commonTimeReal += pause;
 }
 //=================================================================================================================================
-
-static uint8_t cnc_waitSMotorReady(void) {
+static void showCrd(int i) {
 	static const char axisName[5] = "XYZE";
 	static const double axisK[4] = {SM_X_STEPS_PER_MM,SM_Y_STEPS_PER_MM, SM_Z_STEPS_PER_MM, SM_E_STEPS_PER_MM};
+	int32_t globalSteps = stepm_getCurGlobalStepsNum(i);
+	double n = (double)globalSteps/axisK[i];
+#ifdef HAS_EXTRUDER
+	scr_gotoxy(1+i*9,3);
+#else
+	scr_gotoxy(1+i*10,3);
+#endif
+	scr_printf("%c=%f ", axisName[i], n);
+#ifdef HAS_ENCODER
+ if(i == 0) {
+  	int32_t enVal = encoderXvalue();
+  	double encDelta_mm = (double)(enVal*MM_PER_360)/ENCODER_X_CNT_PER_360 - n;
+   scr_gotoxy(1,6); scr_printf("errX:%f  ", encDelta_mm);
+   if(isEncoderCorrection) {
+   	 scr_gotoxy(1,8);	scr_printf("dX:%4d[%4d] Left:%3d Right:%3d",
+    	 		encoderCorrectionDelta[0],encoderCorrectionMaxDelta[0],
+    	 		encoderCorrectionCntUp[0], encoderCorrectionCntDown[0]);
+   if(fabs(encDelta_mm) > ENCODER_MAX_STOP_ERR) {
+     isPause = TRUE;
+   }
+	  }
+  }
+  if(i == 2) {
+   	int32_t enVal = encoderZvalue();
+   	double encDelta_mm = (double)(enVal*MM_PER_360)/ENCODER_Z_CNT_PER_360 - n;
+    scr_gotoxy(1+2*10,6); scr_printf("errZ:%f  ", encDelta_mm);
+    if(isEncoderCorrection) {
+   	 scr_gotoxy(1,9);	scr_printf("dZ:%4d[%4d] Up:  %3d Down:%3d",
+   	 		encoderCorrectionDelta[2],encoderCorrectionMaxDelta[2],
+   	 		encoderCorrectionCntUp[2], encoderCorrectionCntDown[2]);
+     if(fabs(encDelta_mm) > ENCODER_MAX_STOP_ERR) {
+      isPause = TRUE;
+     }
+    }
+   }
+#endif
+}
+
+static uint8_t cnc_waitSMotorReady(void) {
 	static uint32_t time = 0;
+	static uint8_t isStepDump = FALSE;
  int i;
 
 	do {
 		if(stepm_getRemainLines() > 1) {
 			scr_fontColor(Yellow,Black);
+#ifdef HAS_EXTRUDER
 	 	for(i = 0; i < 4; i++) {
-	 		scr_gotoxy(1+i*10,3); scr_printf("%c:%f ", axisName[i], (double)stepm_getCurGlobalStepsNum(i)/axisK[i]);
+#else
+		 	for(i = 0; i < 3; i++) {
+#endif
+     showCrd(i);
 	 	}
-	  if(time != RTC_GetCounter()) {
+	 	if(isStepDump) step_dump();
+	  if(time != RTC_GetCounter() && (curGCodeMode & GFILE_MODE_MASK_SHOW) == 0) {
     uint32_t t;
  	 	//scr_gotoxy(2,12);
 	   //scr_fontColor(_smParam.maxSpindleTemperature >  extrudT_getTemperatureReal()? Green:Red,Black);
@@ -228,34 +281,69 @@ static uint8_t cnc_waitSMotorReady(void) {
 	   t = time - startWorkTime;
 	   scr_gotoxy(30,12); scr_fontColor(Cyan, Black);
 	   scr_printf("%02d:%02d:%02d", t/3600, (t/60)%60, t%60);
+#ifdef HAS_EXTRUDER
+		 	scr_gotoxy(1,11);
+		 	if(_temperatureMAX31855_status != 0) scr_fontColor(Red, Black);
+		 	else scr_fontColor(White,Black);
+	  	scr_printf("T[%d]: %d->%d  PWR:%d.%d INT:%d", _temperatureMAX31855_status, _temperatureHotEnd, _destExtruderT,
+	 			_hotEndPwrPWM/10, _hotEndPwrPWM%10, _temperatureChip);
+#endif
 		 }
 		}
 	 switch(kbd_getKey()) {
 	  case KEY_C:
 	  	stepm_EmergeStop();
-	  	return FALSE;
+	  	isPause = FALSE;
+		return FALSE;
 	  case KEY_A:
 	  	isPause = TRUE;
 	  	break;
+#ifdef HAS_ENCODER
+	  case KEY_0:
+	  	isEncoderCorrection = FALSE; 
+    scr_gotoxy(1,8);	scr_clrEndl();
+    scr_gotoxy(1,9);	scr_clrEndl();
+	  	break;
+	  case KEY_1:
+	  	isEncoderCorrection = TRUE;
+	  	break;
+#endif
+	  case KEY_7:
+	  	isStepDump = TRUE;
+	  	break;
+	  case KEY_8:
+	  	isStepDump = FALSE;
+	  	break;
 	 }
  } while(stepm_LinesBufferIsFull());
+#ifdef HAS_HWD_LIMITS
  if(limits_chk()) {
  	stepm_EmergeStop();
 		scr_fontColor(Red,Black);	scr_gotoxy(7,11); scr_puts("LIMITS ERROR!"); scr_clrEndl();
  	return FALSE;
  }
+#endif
  return TRUE;
 }
 
+#define SEND_LINE_STOP 0
+#define SEND_LINE_OK 1
+#define SEND_LINE_ZERO 2 // unpredictable line speed
+
 static uint8_t sendLine(uint32_t fxyze[], uint32_t abs_dxyze[], uint8_t dir_xyze[]) {
- uint32_t f = 0;
- uint32_t i, n = 0;
+ uint32_t i;
+//===============
+ uint32_t f = 0, n = 0;
  for(i = 0; i < 3; i++) {
   if(fxyze[i] > f) { f = fxyze[i]; n = i; } 
  }
- if(abs_dxyze[n] > 20) {
-  for(i = 0; i < 4; i++) fxyze[i] = (uint32_t)((uint64_t)f * (uint64_t)abs_dxyze[i]/abs_dxyze[n]);
+ if(abs_dxyze[n] > 0) {
+  for(i = 0; i < 4; i++)
+  	if(i != n) {
+  	 fxyze[i] = (uint32_t)(((uint64_t)f * (uint64_t)abs_dxyze[i])/abs_dxyze[n]);
+  	}
  }
+//==============
  if((curGCodeMode & GFILE_MODE_MASK_EXEC) == 0) {
   for(int i = 0; i < 4; i++)  {
    if(fxyze[i] != 0) { commonTimeReal+= abs_dxyze[i]*1000L*K_FRQ/fxyze[i]; break; }
@@ -276,56 +364,84 @@ static uint8_t sendLine(uint32_t fxyze[], uint32_t abs_dxyze[], uint8_t dir_xyze
     GUI_Line(prev_scrX, prev_scrY, scrX, scrY,calcColor((uint8_t)(linesBuffer.stepsZ*5/SM_X_STEPS_PER_MM)& 0x1F));
    prev_scrX = scrX; prev_scrY = scrY;
   }
-  return TRUE;
+  return SEND_LINE_OK;
  }
 #ifdef DEBUG_MODE
- DBG("\n\tsendLine dx:%c%d(%d)\tdy:%c%d(%d)\tdz:%c%d(%d) tz:%d ty:%d tz:%d",
-	  dir_xyze[0]?'+':'-', abs_dxyze[0], fxyze[0],
- 	 dir_xyze[1]?'+':'-', abs_dxyze[1], fxyze[1],
- 	 dir_xyze[2]?'+':'-', abs_dxyze[2], fxyze[2],
+ DBG("\n\tsendLine dx:%c%d(%.0f)\tdy:%c%d(%.0f)\tdz:%c%d(%.0f) \tde:%c%d(%.0f) tx:%d ty:%d tz:%d te:%d",
+	  dir_xyze[0]?'+':'-', abs_dxyze[0], (double)fxyze[0]/K_FRQ,
+ 	 dir_xyze[1]?'+':'-', abs_dxyze[1], (double)fxyze[1]/K_FRQ,
+ 	 dir_xyze[2]?'+':'-', abs_dxyze[2], (double)fxyze[2]/K_FRQ,
+ 	 dir_xyze[3]?'+':'-', abs_dxyze[3], (double)fxyze[3]/K_FRQ,
    fxyze[0]==0?0:abs_dxyze[0]*1000L*K_FRQ/fxyze[0],
 	  fxyze[1]==0?0:abs_dxyze[1]*1000L*K_FRQ/fxyze[1],
-	  fxyze[2]==0?0:abs_dxyze[2]*1000L*K_FRQ/fxyze[2]);
+	  fxyze[2]==0?0:abs_dxyze[2]*1000L*K_FRQ/fxyze[2],
+   fxyze[3]==0?0:abs_dxyze[3]*1000L*K_FRQ/fxyze[3]);
  {
   static uint32_t prevF[3] = {0,0,0};
   static uint8_t prevDir[3] = {0,0,0};
   int i;
   for(i = 0; i < 3; i++) {
-   double p;
-   if((p = labs(prevF[i]-fxyze[i])/(double)_smParam.smoothStartF_from0[i]) > 1.5) {
-    p*=100;
-    DBG(" !!!!!! <%d:%d/%d\t%f> %s", i, labs(prevF[i]-fxyze[i]),_smParam.smoothStartF_from0[i], p, p > 250 ? "$$$":"");
+   double p = labs(prevF[i]-fxyze[i])/(double)_smParam.smoothStartF_from0[i] * 100;
+   if(p > 160) {
+    DBG(" !!!!!! <%d: delta %.0fmm/min > max %.0fmm/min\t%f%%> %s", i, 
+     (double)labs(prevF[i]-fxyze[i])*60/K_FRQ/SM_X_STEPS_PER_MM,
+     (double)_smParam.smoothStartF_from0[i]*60/K_FRQ/SM_X_STEPS_PER_MM, 
+     p, p > 250 ? "$$$":"");
    }
    if(prevDir[i] != dir_xyze[i] && (p = fxyze[i]/(double)_smParam.smoothStartF_from0[i]) > 1.5) {    
     p*=100;
-    DBG(" !!!!!! ## <%d:%d/%d\t%f> %s", i, labs(prevF[i]-fxyze[i]),_smParam.smoothStartF_from0[i], p, p > 250 ? "$$$":"");
+    DBG(" !!!!!! ## <%d: from '0 speed' %.0fmm/min > max %.0fmm/min\t%f> %s", i, 
+     (double)fxyze[i]*60/K_FRQ/SM_X_STEPS_PER_MM,
+     (double)_smParam.smoothStartF_from0[i]*60/K_FRQ/SM_X_STEPS_PER_MM, 
+     p, p > 250 ? "$$$":"");
    }
    if(fxyze[i] > _smParam.maxFeedRate[i]) {
-    DBG(" !!!!!! <%d:%d/%d too hight feedrate!> ", i, fxyze[i],_smParam.maxFeedRate[i]);
+    DBG(" !!!!!! <%d: %.0fmm/min > %.0fmm/min too hight feedrate!> ", i, 
+     (double)fxyze[i]*60/K_FRQ/SM_X_STEPS_PER_MM,
+     (double)_smParam.maxFeedRate[i]*60/K_FRQ/SM_X_STEPS_PER_MM);
    }
-   if(fxyze[i] < (50*SM_X_STEPS_PER_MM/60) && abs_dxyze[i] > 120) {
-    DBG(" !!!!!! <%d:%d too slow feedrate!> ", i, fxyze[i]);
+   if(fxyze[i] < (10*SM_X_STEPS_PER_MM/60) && abs_dxyze[i] > 1) {
+    DBG(" !!!!!! <%d: %.2fmm/min too slow feedrate!> ", i, fxyze[i]*60/K_FRQ/SM_X_STEPS_PER_MM);
    }
   }
   for(i = 0; i < 3; i++) { prevF[i]=fxyze[i];  prevDir[i] = dir_xyze[i];}
+  for(i = 0; i < 3; i++) {
+   if(fxyze[i] != 0) break;
+  }
+  if(i == 3) {
+   DBG(" !!!!!! @@@@ zero speed line");
+  }
  }
 #endif
+  for(i = 0; i < 3; i++) {
+   if(fxyze[i] != 0) break;
+  }
+  if(i == 3) {
+   return SEND_LINE_ZERO;
+  }
 
- if(!cnc_waitSMotorReady()) return FALSE;
+ if(!cnc_waitSMotorReady()) return SEND_LINE_STOP;
  if(isPause) {
  	scr_fontColor(Black,White); scr_gotoxy(1,13); scr_puts(" PAUSE..'B'-continue 'C'-cancel"); scr_clrEndl();
  	while(stepm_inProc()) {};
  	stepm_EmergeStop();
  	while(isPause) {
  		switch(kbd_getKey()) {
- 		 case KEY_C: return FALSE;
+ 		 case KEY_C: return SEND_LINE_STOP;
  		 case KEY_B: isPause = FALSE;
  		}
+#ifdef HAS_EXTRUDER
+	 	for(i = 0; i < 4; i++) {
+#else
+		 	for(i = 0; i < 3; i++) {
+#endif
+     showCrd(i);
+	 	}
  	}
  	scr_fontColor(White, Black); scr_gotoxy(1,13); scr_clrEndl();
  }
  stepm_addMove(abs_dxyze, fxyze, dir_xyze);
-	return TRUE;
+	return SEND_LINE_OK;
 }
 
 
@@ -426,8 +542,8 @@ uint8_t smothLine(int32_t dx, int32_t dy, int32_t dz, int32_t de, int32_t time_m
  dir_xyze[CRD_X] = dx > 0; dir_xyze[CRD_Y] = dy > 0; dir_xyze[CRD_Z] = dz > 0; dir_xyze[CRD_E] =  de > 0;
 #ifdef DEBUG_MODE
  {
-  DBG("\n[%d]-> orig.line dx:%d dy:%d dz:%d", linesBuffer.mvectCnt, dx, dy, dz);
-  if(linesBuffer.mvectCnt == 405) {
+  DBG("\n[%d]-> orig.line dx:%d dy:%d dz:%d de:%d", linesBuffer.mvectCnt, dx, dy, dz, de);
+  if(linesBuffer.mvectCnt == 4703) {
    Sleep(100);
   }
  }
@@ -545,9 +661,9 @@ uint8_t smothLine(int32_t dx, int32_t dy, int32_t dz, int32_t de, int32_t time_m
   DBG("\nl.prev dx:%c%d(%d)\tdy:%c%d(%d)\tdz:%c%d(%d)", p_prev->dir[0]?'+':'-', p_prev->steps[0], p_prev->frq[0],
   		                                              p_prev->dir[1]?'+':'-', p_prev->steps[1], p_prev->frq[1],
   		                                              p_prev->dir[2]?'+':'-', p_prev->steps[2], p_prev->frq[2]);
-  DBG("\nl.cur dx:%c%d(%d)\tdy:%c%d(%d)\tdz:%c%d(%d) cos_a:%f", p_cur->dir[0]?'+':'-', p_cur->steps[0], p_cur->frq[0],
+  DBG("\nl.cur dx:%c%d(%d)\tdy:%c%d(%d)\tdz:%c%d(%d) cos_a:%f \t\tde:%c%d(%d)", p_cur->dir[0]?'+':'-', p_cur->steps[0], p_cur->frq[0],
   		                                              p_cur->dir[1]?'+':'-', p_cur->steps[1], p_cur->frq[1],
-                                                  p_cur->dir[2]?'+':'-', p_cur->steps[2], p_cur->frq[2], p_cur->cos_a/1000000.0);
+                                                  p_cur->dir[2]?'+':'-', p_cur->steps[2], p_cur->frq[2], p_cur->cos_a/1000000.0, p_cur->dir[3]?'+':'-', p_cur->steps[3], p_cur->frq[3]);
   DBG("\nl.next dx:%c%d(%d)\tdy:%c%d(%d)\tdz:%c%d(%d) cos_a:%f", p_next->dir[0]?'+':'-', p_next->steps[0], p_next->frq[0],
   		                                              p_next->dir[1]?'+':'-', p_next->steps[1], p_next->frq[1],
   		                                              p_next->dir[2]?'+':'-', p_next->steps[2], p_next->frq[2], p_next->cos_a/1000000.0);
@@ -628,7 +744,7 @@ uint8_t smothLine(int32_t dx, int32_t dy, int32_t dz, int32_t de, int32_t time_m
     }
    }
    if(length_steps-sBreakage_out < 2) {
-    crd_in = -1; sBreakage_out = length_steps;  // для случаев, когда длинна отрезка с установивщейся скоростью мала.        
+    crd_in = -1; sBreakage_out = length_steps;  // для случаев, когда длинна отрезка с установившейся скоростью мала.
    }
   }
   DBG("\n crd_out=%d sBreakage_out=%d fBreakage_out=%d", crd_out, sBreakage_out, fBreakage_out);
@@ -748,30 +864,42 @@ void cnc_end(void) {
  isGcodeStop = TRUE;
 }
 
+#ifdef HAS_EXTRUDER
+static uint8_t isGcodeStop, isExtruderOn;
 void cnc_extruder_stop(void) {
  isExtruderOn = FALSE;
- cnc_waitSMotorReady();
-	uint8_t dir[4] = {0,0,0,1};
-	uint32_t steps[4] = {0,0,0,SM_E_STEPS_PER_MM/2};
-	uint32_t frq[4] = {SM_MANUAL_MODE_STEPS_PER_SEC*K_FRQ,SM_MANUAL_MODE_STEPS_PER_SEC*K_FRQ,
-			                 SM_MANUAL_MODE_STEPS_PER_SEC*K_FRQ,SM_MANUAL_MODE_STEPS_PER_SEC*K_FRQ};
-	stepm_addMove(steps, frq, dir);
+ if((curGCodeMode & GFILE_MODE_MASK_EXEC) != 0) {
+  cnc_waitSMotorReady();
+ 	uint8_t dir[4] = {0,0,0,1};
+ 	uint32_t steps[4] = {0,0,0,SM_E_STEPS_PER_MM/2};
+ 	uint32_t frq[4] = {SM_MANUAL_MODE_STEPS_X_PER_SEC*K_FRQ,SM_MANUAL_MODE_STEPS_Y_PER_SEC*K_FRQ,
+ 			                 SM_MANUAL_MODE_STEPS_Z_PER_SEC*K_FRQ,SM_MANUAL_MODE_STEPS_E_PER_SEC*K_FRQ};
+ 	stepm_addMove(steps, frq, dir);
+ }
 }
 
 void cnc_extruder_on(void) {
  isExtruderOn = TRUE;
 }
 
+uint8_t extrudT_isReady(void) {
+	int dt = _temperatureHotEnd-_destExtruderT;
+	return dt < 3 && dt > -3;
+}
+
 void cnc_extruder_t(int temperature, int isWait) {
-	extrudT_setTemperature((int16_t)temperature);
+	_destExtruderT = (uint16_t)temperature;
  if(isWait) {
  	if((curGCodeMode & GFILE_MODE_MASK_EXEC) != 0) {
  		scr_fontColor(Red,Black);
   	while(!extrudT_isReady()) {
-  		scr_gotoxy(3,2);scr_fontColor(Yellow,Blue); scr_printf("extruder t:%03d/%03d", extrudT_getTemperatureReal(), extrudT_getTemperatureWait());
+  		scr_gotoxy(4,10);scr_fontColor(Yellow,Blue);
+  		scr_printf("WarmUp: %03d -> %03d", _temperatureHotEnd, _destExtruderT);
   	 if(kbd_getKey() == KEY_C) return;
   	}
- 		scr_gotoxy(3,2);scr_fontColor(White,Black); scr_puts("                        ");
+ 		scr_gotoxy(4,10);scr_fontColor(White,Black); scr_clrEndl();
  	}
  }
 }
+#endif //#ifdef HAS_EXTRUDER
+

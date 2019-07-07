@@ -59,10 +59,10 @@ unsigned short ili9320_ReadRegister(unsigned short index);
 unsigned short GUI_Color565(unsigned int RGB);
 
 void GUI_Text(unsigned short x, unsigned short y, const unsigned char *str, unsigned short len,unsigned short Color, unsigned short bkColor);
-void GUI_Line(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color);  // ï¿½ï¿½ï¿½ï¿½
-void GUI_Circle(unsigned short cx,unsigned short cy,unsigned short r,unsigned short color,unsigned char fill);  // ï¿½ï¿½Ô°
-void GUI_Rectangle(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color,unsigned char fill); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-void GUI_Square(unsigned short x0, unsigned short y0, unsigned short with, unsigned short color,unsigned char fill);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+void GUI_Line(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color);  // »­Ïß
+void GUI_Circle(unsigned short cx,unsigned short cy,unsigned short r,unsigned short color,unsigned char fill);  // »­Ô°
+void GUI_Rectangle(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color,unsigned char fill); // »­¾ØÐÎ
+void GUI_Square(unsigned short x0, unsigned short y0, unsigned short with, unsigned short color,unsigned char fill);  // »­Õý·½ÐÎ
 
 
 unsigned short  Touch_MeasurementX(void);
@@ -73,8 +73,8 @@ unsigned char isTouch_pen(void);
 unsigned short Touch_ScrX(void);
 unsigned short Touch_ScrY(void);
 
-#define White          0xFFFF//ï¿½ï¿½É«
-#define Black          0x0000//ï¿½ï¿½É«
+#define White          0xFFFF//°×É«
+#define Black          0x0000//ºÚÉ«
 #define Grey           0xF7DE
 #define Blue           0x001F
 #define Blue2          0x051F

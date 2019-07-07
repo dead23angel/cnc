@@ -138,33 +138,75 @@ void PendSVC(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
+#ifdef HAS_TERMOMETER_MAX31855
+static volatile uint8_t MAX31855cntWords = 0;
+volatile int16_t _temperatureHotEnd = -100, _temperatureChip = -100;
+volatile uint8_t _temperatureMAX31855_status = 0x10;
+#define DT_MEASURE_TEMPERATURE 500
+#endif
+
+#ifdef HAS_EXTRUDER
+void extruderWarmUp();
+#endif
+
+uint32_t _sysTicks = 0;
+
 void gyroBoardRq(void);
-
 void SysTickHandler(void) {
-	static uint16_t cnt=0, kbdCnt = 0, extruderTemperatureCnt = 0; //, lightScrCnt = 0;
-	static uint8_t flip=0;
+#ifdef HAS_TERMOMETER_MAX31855
+	static uint16_t termometerCnt=0;
+#endif
+#ifdef HAS_EXTRUDER
+	static uint16_t extruderPID_dt_cnt = 0;
+#endif
+	uint16_t cnt = _sysTicks % 1000;
 
-	cnt++;
-	if( cnt >= 500 ) {
-		cnt = 0;
-		if ( flip ) {
-			GPIOB->BSRR = GPIO_Pin_5;
-		}	else {
-			GPIOB->BRR = GPIO_Pin_5;
-		}
+	_sysTicks++;
+
+	if(cnt == 0) {
+		static uint8_t flip=0;
+		if ( flip ) GPIOB->BSRR = GPIO_Pin_5;
+		else GPIOB->BRR = GPIO_Pin_5;
 		flip = !flip;
 	}
-	kbdCnt++;
-	if(kbdCnt >= 12) {
-		kbdCnt = 0;
+#ifdef HAS_EXTRUDER
+	if(cnt < _hotEndPwrPWM) HOTEND_PWR_PORT->BSRR = HOTEND_PWR_PIN;
+	else HOTEND_PWR_PORT->BRR = HOTEND_PWR_PIN;
+ extruderPID_dt_cnt++;
+ if(extruderPID_dt_cnt >= 2000) {
+ 	extruderPID_dt_cnt = 0;
+	 extruderWarmUp();
+ }
+ static uint8_t encoderState = 0;
+ uint8_t encoderTmp = 0;
+ if((HOTEND_TUNE_ENCODER_CHB_PORT->IDR & HOTEND_TUNE_ENCODER_CHB_PIN) != 0) encoderTmp |= 1;
+ if((HOTEND_TUNE_ENCODER_CHA_PORT->IDR & HOTEND_TUNE_ENCODER_CHA_PIN) != 0) encoderTmp |= 2;
+ if(encoderTmp != (encoderState & 0x03)) {
+ 	encoderState = (encoderState<<2)|encoderTmp;
+ 	if (encoderState == 0xE1) { // 1110.0001
+	 	if(_destExtruderT < 270 && _destExtruderT != 0)	_destExtruderT++;
+ 	}
+ 	if (encoderState == 0xD2) { //1101.0010
+	 	if(_destExtruderT > 100)	_destExtruderT--;
+ 	}
+ }
+#endif
+
+	if((_sysTicks %15) == 0) {
 	 kbd_proc();
 	}
 
-	extruderTemperatureCnt++;
-	if(extruderTemperatureCnt >= 20) {
-		extruderTemperatureCnt = 0;
-		extrudT_proc();
+#ifdef HAS_TERMOMETER_MAX31855
+	termometerCnt++;
+	if( termometerCnt >= DT_MEASURE_TEMPERATURE) {
+		if(termometerCnt == DT_MEASURE_TEMPERATURE) {
+		 GPIO_ResetBits(MAX31855_CS_PORT, MAX31855_CS_PIN); // CS = on
+		} else if(termometerCnt == (DT_MEASURE_TEMPERATURE+1)) {
+			MAX31855cntWords = 0;
+			SPI_I2S_SendData(SPI1, 0);
+		} else termometerCnt = 0;
 	}
+#endif
 }
 
 /*******************************************************************************
@@ -234,8 +276,7 @@ void RCC_IRQHandler(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void EXTI0_IRQHandler(void)
-{}
+void EXTI0_IRQHandler(void) {}
 
 /*******************************************************************************
 * Function Name  : EXTI1_IRQHandler
@@ -405,8 +446,7 @@ void CAN_SCE_IRQHandler(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void EXTI9_5_IRQHandler(void) {
-}
+void EXTI9_5_IRQHandler(void) {}
 
 /*******************************************************************************
 * Function Name  : TIM1_BRK_IRQHandler
@@ -531,8 +571,26 @@ void I2C2_ER_IRQHandler(void) {}
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SPI1_IRQHandler(void)
-{}
+volatile uint16_t MAX31855_v1=0, MAX31855_v2 = 0;
+void SPI1_IRQHandler(void) {
+#ifdef HAS_TERMOMETER_MAX31855
+	int16_t v = SPI_I2S_ReceiveData(SPI1);
+ if(MAX31855cntWords == 0) {
+ 	_temperatureMAX31855_status = 0;
+ 	if((v & 1) != 0) _temperatureMAX31855_status |= 8;
+ 	else _temperatureHotEnd = v / 32; //>>4
+ 	MAX31855_v1 = v;
+ 	MAX31855cntWords = 1;
+ 	SPI_I2S_SendData(SPI1, 0);
+ } else {
+ 		MAX31855_v2 = v;
+ 	_temperatureMAX31855_status |= v & 7;
+ 	if(_temperatureMAX31855_status == 0) _temperatureChip = v>>8;
+ 	MAX31855cntWords = 0;
+ 	GPIO_SetBits(MAX31855_CS_PORT,MAX31855_CS_PIN); // CS = off
+ }
+#endif
+}
 
 /*******************************************************************************
 * Function Name  : SPI2_IRQHandler
@@ -542,7 +600,8 @@ void SPI1_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 void SPI2_IRQHandler(void) {
- extrudT_irq();
+ //extruder_t.c removed 20.03.13
+	//extrudT_irq();
 }
 
 /*******************************************************************************
@@ -689,8 +748,13 @@ void SDIO_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 void TIM5_IRQHandler(void) {
- TIM_ClearITPendingBit(TIM5, TIM_IT_Update);
- stepm_proc(3);
+#ifdef HAS_ENCODER
+	if (TIM_GetITStatus(TIM5, TIM_IT_Update) != RESET) {
+	 TIM_ClearITPendingBit(TIM5, TIM_IT_Update);
+	 if(TIM5->CR1 & TIM_CR1_DIR) encoderXoffset += 0xffff/4;
+	 else encoderXoffset -= 0xffff/4;
+	}
+#endif
 }
 
 /*******************************************************************************
@@ -731,7 +795,10 @@ void UART5_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 
-void TIM6_IRQHandler(void) {}
+void TIM6_IRQHandler(void) {
+ TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
+ stepm_proc(3);
+}
 
 /*******************************************************************************
 * Function Name  : TIM7_IRQHandler

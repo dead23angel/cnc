@@ -20,6 +20,7 @@ uint32_t GetCpuClock()
 #endif
 
 void SystemStartup(void) {
+ NVIC_InitTypeDef NVIC_InitStructure;
  /* Unlock the internal flash */
  FLASH_Unlock();
 
@@ -52,8 +53,9 @@ void SystemStartup(void) {
  RCC_GetClocksFreq( &RCC_Clocks ) ;
  SysTick_Config(SystemFrequency / 1000);
  //-------------  GPIO  configure ----------
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO|RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOC|
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO|RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOC|
 			RCC_APB2Periph_GPIOD|RCC_APB2Periph_GPIOE, ENABLE);
+
  GPIO_InitTypeDef GPIO_InitStructure;
  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
@@ -64,19 +66,79 @@ void SystemStartup(void) {
  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
  GPIO_Init(GPIOB, &GPIO_InitStructure); // KEY on board
 
- SST25_flashInit();
- rs232_init();
- kbd_init();
- stepm_init();
- extrudT_init();
-
- limits_init();
  rtc_init();
  Lcd_Configuration(); ili9320_Initializtion(); ili9320_Clear(0); Lcd_Light_ON;
-
  win_showMsgWin(); delayMs(500);
- scr_puts("   ---- CNC MM V1.0 -----");
+ scr_puts(" ---- SystemStartup -----");
+
+ rs232_init();
+ kbd_init();
+ scr_puts("\nstep 1.");
+ stepm_init();
+ scr_puts("\nstep 2.");
+ // extruder_t.c removed 20.03.13
+ // extrudT_init();
+#ifdef HAS_ENCODER
+ encoder_int();
+#endif
+#ifdef HAS_TERMOMETER_MAX31855
+ GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+ // T_CS=PB14, SPI1_SCK=PA5, SPI1_MISO=PA6, SPI1_MOSI=PA7
+ GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+ GPIO_InitStructure.GPIO_Pin = MAX31855_CS_PIN; GPIO_Init(MAX31855_CS_PORT, &GPIO_InitStructure);
+
+ GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+ GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_7; GPIO_Init(GPIOA,&GPIO_InitStructure);
+
+ // SPI1 LCD TSC2046N CS off
+ GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+ GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7; GPIO_Init(GPIOB,&GPIO_InitStructure);
+ GPIOB->BSRR = GPIO_Pin_7;
+
+ GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+ GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6; GPIO_Init(GPIOA,&GPIO_InitStructure);
+
+  //SPI1 Periph clock enable
+ RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1,ENABLE);
+ SPI_I2S_DeInit(SPI1);
+ SPI_Cmd(SPI1, DISABLE);
+ SPI_InitTypeDef   SPI_InitStructure;
+ SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+ SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+ SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;
+ SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
+ SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
+ SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+ SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256;
+ SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+ SPI_Init(SPI1,&SPI_InitStructure);
+ NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+ NVIC_InitStructure.NVIC_IRQChannel = SPI1_IRQn;
+ NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+ NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+ NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+ NVIC_Init(&NVIC_InitStructure);
+ SPI_I2S_ITConfig(SPI1,SPI_I2S_IT_RXNE,ENABLE);
+ SPI_Cmd(SPI1,ENABLE);
+#endif
+ scr_puts("\nstep 3.");
+#ifdef HAS_HWD_LIMITS
+ limits_init();
+#endif
+#ifdef HAS_EXTRUDER
+ GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+ GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+ GPIO_InitStructure.GPIO_Pin = HOTEND_PWR_PIN; GPIO_Init(HOTEND_PWR_PORT, &GPIO_InitStructure);
+ //* PB0,PC4 - hotend temperature tune (encoder for manual adjusting)
+ GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+ GPIO_InitStructure.GPIO_Pin = HOTEND_TUNE_ENCODER_CHA_PIN;
+ GPIO_Init(HOTEND_TUNE_ENCODER_CHA_PORT, &GPIO_InitStructure);
+ GPIO_InitStructure.GPIO_Pin = HOTEND_TUNE_ENCODER_CHB_PIN;
+ GPIO_Init(HOTEND_TUNE_ENCODER_CHB_PORT, &GPIO_InitStructure);
+#endif
+ scr_puts("\nstep 4.");
  MAL_Init(0);
+ scr_puts("\nstep 5.");
 
  // USB configure
  /* USB_DISCONNECT_PIN used as USB pull-up */
@@ -88,7 +150,6 @@ void SystemStartup(void) {
  RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_1Div5);
  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
 
- NVIC_InitTypeDef NVIC_InitStructure;
  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
  NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
@@ -101,6 +162,7 @@ void SystemStartup(void) {
  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
  NVIC_Init(&NVIC_InitStructure);
  USB_Init();
+ scr_puts("\nstep 6.");
  //while(bDeviceState != CONFIGURED);
 }
 

@@ -44,7 +44,11 @@ static void initSmParam(int8_t isSaveFile) {
  _smParam.maxFeedRate[0] = SM_X_MAX_STEPS_PER_SEC*K_FRQ;
  _smParam.maxFeedRate[1] = SM_Y_MAX_STEPS_PER_SEC*K_FRQ;
  _smParam.maxFeedRate[2] = SM_Z_MAX_STEPS_PER_SEC*K_FRQ;
- _smParam.maxSpindleTemperature = MAX_SPINDEL_TEMPERATURE;
+
+#ifdef HAS_EXTRUDER
+_smParam.defExtruderTemperature = DEF_EXTRUDER_TEMPERATURE;
+#endif
+
  FIL fid;
  FRESULT fres = f_open(&fid, CONF_FILE_NAME, FA_READ);
  char str[256], *p;
@@ -62,10 +66,12 @@ static void initSmParam(int8_t isSaveFile) {
  	 _smParam.smoothAF[i] = strtod_M(p, &p);
  	 _smParam.maxFeedRate[i] = strtod_M(p, &p);
  	}
+#ifdef HAS_EXTRUDER
 	 if(f_gets(str, sizeof(str), &fid) != NULL) {
   	DBG("t:'%s'", str);
-	  if(f_gets(str, sizeof(str), &fid) != NULL) _smParam.maxSpindleTemperature = strtod_M(str, &p);
+	  if(f_gets(str, sizeof(str), &fid) != NULL) _smParam.defExtruderTemperature = strtod_M(str, &p);
 	 }
+#endif
 		scr_puts("*");
  	f_close(&fid);
  	scr_puts(" OK");
@@ -87,13 +93,16 @@ static void initSmParam(int8_t isSaveFile) {
 		                          		   _smParam.smoothAF[i],_smParam.maxFeedRate[i]);
 		scr_puts(".");
 	}
-	f_printf(&fid, "Spindle switch-off temperature (C.degree)\n");
-	f_printf(&fid, "%d\n", _smParam.maxSpindleTemperature);
+#ifdef HAS_EXTRUDER
+	f_printf(&fid, "default hot end temperature (C.degree)\n");
+	f_printf(&fid, "%d\n", _smParam.defExtruderTemperature);
+#endif
 	scr_puts("*");
  f_close(&fid);
 	scr_puts(" - OK");
 }
 
+extern volatile uint16_t MAX31855_v1, MAX31855_v2;
 
 static void showStatusString(void) {
  static uint8_t sec = 0, limits = 0xff;
@@ -104,17 +113,23 @@ static void showStatusString(void) {
   scr_printf("%02d.%02d.%02d %02d:%02d:%02d ",
  		 rtc.mday, rtc.month, rtc.year-2000, rtc.hour, rtc.min, rtc.sec);
 
-  scr_fontColor(_smParam.maxSpindleTemperature >  extrudT_getTemperatureReal()? Green:Red,Black);
-  scr_printf("t:%dC", extrudT_getTemperatureReal());
- // scr_clrEndl();
+#ifdef HAS_TERMOMETER_MAX31855
+ 	if(_temperatureMAX31855_status != 0) scr_fontColor(Red, Black);
+  scr_printf("T[%d]:%d INT:%d", _temperatureMAX31855_status, _temperatureHotEnd, _temperatureChip);
+  scr_clrEndl();
+//  scr_gotoxy(2,TEXT_Y_MAX-1); scr_printf("%X.%X        ", MAX31855_v1,MAX31855_v2);
+#endif
   sec = rtc.sec;
+  limits = 0xff;
  }
+#ifdef HAS_HWD_LIMITS
  if(limits != limits_chk()) {
  	limits = limits_chk();
  	GUI_Rectangle(304, 232, 309, 239, limitX_chk()? Red:Green, TRUE);
  	GUI_Rectangle(310, 232, 315, 239, limitY_chk()? Red:Green, TRUE);
  	GUI_Rectangle(314, 232, 319, 239, limitZ_chk()? Red:Green, TRUE);
  }
+#endif
 }
 
 void showCriticalStatus(char *msg, int st) {
@@ -211,28 +226,40 @@ static void setTime(void) {
 
 	 scr_gotoxy(0,4); scr_fontColorNormal();
   scr_printf(" New: %02d.%02d.%02d %02d:%02d:%02d", rtc.mday, rtc.month, rtc.year-2000, rtc.hour, rtc.min, rtc.sec);
-  scr_fontColorInvers(); scr_gotoxy(pos*3+6,3); scr_printf("%02d", v);
+  scr_fontColorInvers(); scr_gotoxy(pos*3+6,4); scr_printf("%02d", v);
  	while((c = kbd_getKey()) < 0);
  	if(c == KEY_A) v++;
- 	if(c == KEY_B)	v--;
+ 	if(c == KEY_B) v--;
   switch(pos) {
    case 0:
-   	if(v >= 1 && v <= 31) rtc.mday = v;
+   	if(v <= 1) v = 31;
+   	if(v > 31) v = 1;
+   	rtc.mday = v;
    	break;
    case 1:
-   	if(v >= 1 && v <= 12) rtc.month = v;
+   	if(v <= 1) v = 12;
+   	if(v > 12) v = 1;
+   	rtc.month = v;
    	break;
    case 2:
-   	if(v >= 12 && v <= 30) rtc.year = v+2000;
+   	if(v <= 12) v = 12;
+   	if(v > 30) v = 30;
+   	rtc.year = v+2000;
    	break;
    case 3:
-   	if(v >= 0 && v <= 23) rtc.hour = v;
+   	if(v < 0) v = 23;
+   	if(v > 23) v = 0;
+   	rtc.hour = v;
    	break;
    case 4:
-   	if(c >= 0 && v <= 59)	rtc.min = v;
+   	if(v < 0) v = 59;
+   	if(v > 59) v = 0;
+   	rtc.min = v;
    	break;
    case 5:
-   	if(v >= 0 && v <= 59)	rtc.sec = v;
+   	if(v < 0) v = 59;
+   	if(v > 59) v = 0;
+   	rtc.sec = v;
    	break;
   }
  } while(c != KEY_C && c != KEY_D);
@@ -240,19 +267,19 @@ static void setTime(void) {
 }
 
 //==============================================================================
+
 int main() {
  SystemStartup();
- rf_puts("mm1.0\n");
- // delayMs(500);
- //test();
 	FRESULT fres;
+
  fres = f_mount(0, &fatfs);
  if(fres != FR_OK ) showCriticalStatus(" Mount SD error [code:%d]\n SD card used for any CNC process\n Only RESET possible at now", fres);
 	initSmParam(FALSE);
  scr_puts("\n         ---- OK -----");
-	while(kbd_getKey() == KEY_D);
 
+	while(kbd_getKey() == KEY_D);
  uint8_t rereadDir = TRUE, redrawScr = TRUE, redrawDir = TRUE;
+
  while(1) { // main screen
   char str[150];
  	if(rereadDir) {
@@ -266,13 +293,19 @@ int main() {
  	 		"0 - start gcode\t 1 - manual mode\n"
  	 		"2 - show gcode\t 3 - delete file\n"
  	 		"4 - set time\t 5 - file info\n"
- 	 		"6 - scan mode\t 7 - conf.file");
+ 	 		"7-save conf.file ");
+#ifdef HAS_EXTRUDER
+ 	 scr_puts("6 - hot end");
+#endif
  	 redrawDir = TRUE;
  	}
  	if(redrawDir) {	redrawDir = FALSE; drawFileList();	}
 	// ---------------------
  	showStatusString();
 	// ---------------------
+#ifdef HAS_EXTRUDER
+ 	 _destExtruderT = 0;
+#endif
  	switch(kbd_getKey()) {
  	 case KEY_A:	curFile--; redrawDir = TRUE;	break;
  	 case KEY_B: curFile++; redrawDir = TRUE; break;
@@ -355,7 +388,9 @@ int main() {
  	 }	break;
  	 //------------------------------------------
  	 case KEY_6:
-// 	 	initSensor();	scanMode();
+#ifdef HAS_EXTRUDER
+ 	 	adjHotEnd();
+#endif
  	  redrawScr = TRUE;
  	 	break;
  	 //------------------------------------------
@@ -369,3 +404,6 @@ int main() {
  	}
  }
 }
+
+
+

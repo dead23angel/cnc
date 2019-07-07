@@ -5,9 +5,8 @@
 
 #ifdef _WINDOWS
 #include "stdafx.h"
-#else
-#include "global.h"
 #endif
+#include "global.h"
 
 #include "gcode.h"
 #include <stdio.h>
@@ -28,10 +27,14 @@
 #define NEXT_ACTION_STOP 4
 #define NEXT_ACTION_SEEK_G0 5 // G0 
 #define NEXT_ACTION_LINEAR_G1 6 // G1
+
+#ifdef HAS_EXTRUDER
 #define NEXT_ACTION_EXTRUDER_STOP 7
 #define NEXT_ACTION_EXTRUDER_ON 8
 #define NEXT_ACTION_EXTRUDER_FAST_T 9
 #define NEXT_ACTION_EXTRUDER_WAIT_T 10
+#endif // HAS_EXTRUDER
+
 #define NEXT_ACTION_CW_ARC 11
 #define NEXT_ACTION_CCW_ARC 12
 
@@ -41,7 +44,7 @@ typedef struct {
   uint8_t absolute_mode;           /* 0 = relative motion, 1 = absolute motion {G90, G91} */
   uint8_t spindle_on, extruder_on;
   double feed_rate, seek_rate;     /* Millimeters/second */
-  double extruder_length, extruder_k;
+  double extruder_length;
   double position[3];              /* Where the interpreter considers the tool to be at this point in the code */
   int16_t s_value;           /* RPM/100 or temperature of the current extruder */
   uint8_t next_action;  /* The action that will be taken by the parsed line */
@@ -88,9 +91,9 @@ static int read_double(char *line, int *char_counter, double *double_ptr) {
 }
 
 static int next_statement(char *letter, double *double_ptr, char *line, int *char_counter) {
- while(line[*char_counter] == ' ') (*char_counter)++;
+ while(line[*char_counter] == ' ' || line[*char_counter] == '\t') (*char_counter)++;
 
- if (line[*char_counter] == 0 || line[*char_counter] == ';' || 
+ if (line[*char_counter] == 0 || line[*char_counter] == '('  || line[*char_counter] == ';' ||
   line[*char_counter] == '\n' || line[*char_counter] == '\r' ) return FALSE; 
  *letter = line[*char_counter];
  if((*letter < 'A') || (*letter > 'Z')) {
@@ -106,9 +109,6 @@ void gc_init(void) {
  gc.feed_rate = SM_DEFAULT_FEED_RATE;
  gc.seek_rate = SM_DEFAULT_SEEK_RATE;
  gc.absolute_mode = TRUE;
-// gc.startPosX = commonValues.startX; gc.startPosY = commonValues.startY;
-// gc.startPosZ = commonValues.startZ;
- gc.extruder_k = 1; //commonValues.extruder_k;
  gc.next_action = NEXT_ACTION_DEFAULT;
 }
 
@@ -267,6 +267,7 @@ uint8_t gc_execute_line(char *line) {
         case 98: //Feedrate per minute (group type A)
         case 97: //Constant spindle speed M T Takes an S address integer, which is interpreted as rev/min (rpm). The default speed mode per system parameter if no mode is programmed. 
         case 49: // Tool length offset compensation cancel
+        case 54: // Select Relative Coordinate System
          break;
         default: FAIL(GCSTATUS_UNSUPPORTED_STATEMENT);
       } break;      
@@ -278,8 +279,9 @@ uint8_t gc_execute_line(char *line) {
         	gc.next_action = NEXT_ACTION_STOP;
          break;
         case 3: gc.spindle_on = 1; break;
-//        case 4: gc.spindle_direction = -1; break;
+        case 4:  break; //gc.spindle_direction = -1; break;
         case 5: gc.spindle_on = 0; break;
+#ifdef HAS_EXTRUDER
         case 101: //  M101 Turn extruder 1 on Forward 
         	gc.next_action = NEXT_ACTION_EXTRUDER_ON;
          break;
@@ -292,7 +294,9 @@ uint8_t gc_execute_line(char *line) {
         case 109: // Set Extruder Temperature Example: M109 S190 
         	gc.next_action = NEXT_ACTION_EXTRUDER_WAIT_T;
          break;
-//        case 102: //  M102 Turn extruder 1 on Reverse 
+        case 108: // M108: Set Extruder Speed  Sets speed of extruder motor. 
+        case 102: //  M102 Turn extruder 1 on Reverse
+        case 113: // Set Extruder PWM 
         case 23: // Thread gradual pullout ON
         case 24: // Thread gradual pullout OFF
         case 52: // Unload Last tool from spindle
@@ -300,15 +304,15 @@ uint8_t gc_execute_line(char *line) {
         case 48: // Feedrate override allowed
         case 8:// Coolant on
         case 9:// Coolant off
+        case 92: // G92: Set Position. Allows programming of absolute zero point, by reseting the current position to the values specified
         case 105: // M105: Get Extruder Temperature Example: M105 Request the temperature of the current extruder and the build base in degrees Celsius. The temperatures are returned to the host computer. For example, the line sent to the host in response to this command looks like 
         case 106: // M106: Fan On Example: M106 S127 Turn on the cooling fan at half speed. Optional parameter 'S' declares the PWM value (0-255) 
         case 107: // Fan Off 
-        case 108: // M108: Set Extruder Speed  Sets speed of extruder motor. (Deprecated in current firmware, see M113) 
         case 110: // Set Current Line Number 
-        case 113: // Set Extruder PWM 
         case 140: // Bed Temperature (Fast) Example: M140 S55 Set the temperature of the build bed to 55oC 
         case 141: //Chamber Temperature (Fast) Example: M141 S30 Set the temperature of the chamber to 30oC
         case 142: // Holding Pressure Example: M142 S1 Set the holding pressure of the bed to 1 bar. 
+#endif // HAS_EXTRUDER
         case 6:
          return gc.status_code;
         default: FAIL(GCSTATUS_UNSUPPORTED_STATEMENT);
@@ -343,6 +347,7 @@ uint8_t gc_execute_line(char *line) {
       break;
      case 'I': case 'J': case 'K': offset[letter-'I'] = unit_millimeters_value; break;
      case 'R': radius = unit_millimeters_value; radius_mode = TRUE; break;
+     case 'T':
      case 'G': case 'N': case 'M': break;
      default: 
       FAIL(GCSTATUS_UNSUPPORTED_PARAM);
@@ -361,12 +366,14 @@ uint8_t gc_execute_line(char *line) {
 
   moveLength = sqrt(dx*dx+dy*dy+dz*dz);
   double feed_rate = gc.next_action == NEXT_ACTION_SEEK_G0 ? gc.seek_rate:gc.feed_rate;
-  if(gc.extruder_on) {
-   if(extrudeLength == 0.0) gc.extruder_length += moveLength*gc.extruder_k;
-   else gc.extruder_length = extrudeLength;
+  if(gc.extruder_on && moveLength != 0) {
+   if(extrudeLength == 0.0) {
+    FAIL(GCSTATUS_SUPPORT_ONLY_E_EXTRUDER);
+   } else gc.extruder_length = extrudeLength;
   }
 
-  if((gc.next_action == NEXT_ACTION_SEEK_G0 || gc.next_action == NEXT_ACTION_LINEAR_G1) &&
+  if((gc.next_action == NEXT_ACTION_SEEK_G0 || gc.next_action == NEXT_ACTION_LINEAR_G1 ||
+  		  gc.next_action == NEXT_ACTION_CW_ARC || gc.next_action == NEXT_ACTION_CCW_ARC) &&
   		 moveLength < SM_TOO_SHORT_SEGMENT_MM) {
   	// too short move.. Ignore
    gc.position[X_AXIS] = oldPosition[X_AXIS]; gc.position[Y_AXIS] = oldPosition[Y_AXIS];
@@ -476,6 +483,7 @@ center of arc when h_x2_div_d is positive ->  x <----- | -----> x <- center of a
     }
     mc_arc(oldPosition, gc.position, offset, gc.feed_rate, radius, gc.next_action == NEXT_ACTION_CW_ARC);
     break;
+#ifdef HAS_EXTRUDER
    case NEXT_ACTION_EXTRUDER_STOP:
     cnc_extruder_stop(); gc.extruder_on = FALSE;
     break;
@@ -488,6 +496,7 @@ center of arc when h_x2_div_d is positive ->  x <----- | -----> x <- center of a
    case NEXT_ACTION_EXTRUDER_WAIT_T:
     cnc_extruder_t(gc.s_value, TRUE);
     break;
+#endif // HAS_EXTRUDER
   }
   return(gc.status_code);
 }

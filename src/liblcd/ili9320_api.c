@@ -3,47 +3,47 @@
 
 
 /****************************************************************************
-* ï¿½ï¿½    ï¿½Æ£ï¿½GUI_CmpColor()
-* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½É«Öµï¿½Ç·ï¿½Ò»ï¿½Â¡ï¿½
-* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½color1		ï¿½ï¿½É«Öµ1
-*		        color2		ï¿½ï¿½É«Öµ2
-* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½Ê¾ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½
-* Ëµ    ï¿½ï¿½ï¿½ï¿½
+* Ãû    ³Æ£ºGUI_CmpColor()
+* ¹¦    ÄÜ£ºÅÐ¶ÏÑÕÉ«ÖµÊÇ·ñÒ»ÖÂ¡£
+* Èë¿Ú²ÎÊý£ºcolor1		ÑÕÉ«Öµ1
+*		        color2		ÑÕÉ«Öµ2
+* ³ö¿Ú²ÎÊý£º·µ»Ø1±íÊ¾ÏàÍ¬£¬·µ»Ø0±íÊ¾²»ÏàÍ¬¡£
+* Ëµ    Ã÷£º
 ****************************************************************************/
 #define  GUI_CmpColor(color1, color2)	( (color1&0x01) == (color2&0x01) )
 
 
 /****************************************************************************
-* ï¿½ï¿½    ï¿½Æ£ï¿½unsigned short GUI_Color565(u32 RGB)
-* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½RGBï¿½ï¿½É«×ªï¿½ï¿½Îª16Î»ï¿½ï¿½É«ï¿½ï¿½
-* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½RGB  ï¿½ï¿½É«Öµ
-* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½16Î»RGBï¿½ï¿½É«Öµï¿½ï¿½
-* Ëµ    ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½i=GUI_Color565(0xafafaf);
+* Ãû    ³Æ£ºunsigned short GUI_Color565(u32 RGB)
+* ¹¦    ÄÜ£º½«RGBÑÕÉ«×ª»»Îª16Î»ÑÕÉ«¡£
+* Èë¿Ú²ÎÊý£ºRGB  ÑÕÉ«Öµ
+* ³ö¿Ú²ÎÊý£º·µ»Ø16Î»RGBÑÕÉ«Öµ¡£
+* Ëµ    Ã÷£º
+* µ÷ÓÃ·½·¨£ºi=GUI_Color565(0xafafaf);
 ****************************************************************************/
 unsigned short GUI_Color565(unsigned int RGB)
 {
   unsigned char  r, g, b;
 
-  b = ( RGB >> (0+3) ) & 0x1f;		// È¡BÉ«ï¿½Ä¸ï¿½5Î»
-  g = ( RGB >> (8+2) ) & 0x3f;		// È¡GÉ«ï¿½Ä¸ï¿½6Î»
-  r = ( RGB >> (16+3)) & 0x1f;		// È¡RÉ«ï¿½Ä¸ï¿½5Î»
+  b = ( RGB >> (0+3) ) & 0x1f;		// È¡BÉ«µÄ¸ß5Î»
+  g = ( RGB >> (8+2) ) & 0x3f;		// È¡GÉ«µÄ¸ß6Î»
+  r = ( RGB >> (16+3)) & 0x1f;		// È¡RÉ«µÄ¸ß5Î»
    
   return( (r<<11) + (g<<5) + (b<<0) );		
 }
 
 /****************************************************************************
-* ï¿½ï¿½    ï¿½Æ£ï¿½void GUI_Text(unsigned short x, unsigned short y, unsigned char *str, unsigned short len,unsigned short Color, unsigned short bkColor)
-* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ö·ï¿½ï¿½ï¿½
-* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½x      ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-*           y      ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-*           *str   ï¿½Ö·ï¿½ï¿½ï¿½
-*           len    ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-*           Color  ï¿½Ö·ï¿½ï¿½ï¿½É«
-*           bkColorï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«
-* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-* Ëµ    ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½GUI_Text(0,0,"0123456789",10,0x0000,0xffff);
+* Ãû    ³Æ£ºvoid GUI_Text(unsigned short x, unsigned short y, unsigned char *str, unsigned short len,unsigned short Color, unsigned short bkColor)
+* ¹¦    ÄÜ£ºÔÚÖ¸¶¨×ù±êÏÔÊ¾×Ö·û´®
+* Èë¿Ú²ÎÊý£ºx      ÐÐ×ù±ê
+*           y      ÁÐ×ù±ê
+*           *str   ×Ö·û´®
+*           len    ×Ö·û´®³¤¶È
+*           Color  ×Ö·ûÑÕÉ«
+*           bkColor×Ö·û±³¾°ÑÕÉ«
+* ³ö¿Ú²ÎÊý£ºÎÞ
+* Ëµ    Ã÷£º
+* µ÷ÓÃ·½·¨£ºGUI_Text(0,0,"0123456789",10,0x0000,0xffff);
 ****************************************************************************/
 void GUI_Text(unsigned short x, unsigned short y, const unsigned char *str, unsigned short len,unsigned short Color, unsigned short bkColor)
 {
@@ -56,16 +56,16 @@ void GUI_Text(unsigned short x, unsigned short y, const unsigned char *str, unsi
 }
 
 /****************************************************************************
-* ï¿½ï¿½    ï¿½Æ£ï¿½void GUI_Line(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color)
-* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ê»­Ö±ï¿½ï¿½
-* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½x0     Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-*           y0     Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-*           x1     Bï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-*           y1     Bï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-*           color  ï¿½ï¿½ï¿½ï¿½É«
-* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-* Ëµ    ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½GUI_Line(0,0,240,320,0x0000);
+* Ãû    ³Æ£ºvoid GUI_Line(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color)
+* ¹¦    ÄÜ£ºÔÚÖ¸¶¨×ù±ê»­Ö±Ïß
+* Èë¿Ú²ÎÊý£ºx0     AµãÐÐ×ù±ê
+*           y0     AµãÁÐ×ù±ê
+*           x1     BµãÐÐ×ù±ê
+*           y1     BµãÁÐ×ù±ê
+*           color  ÏßÑÕÉ«
+* ³ö¿Ú²ÎÊý£ºÎÞ
+* Ëµ    Ã÷£º
+* µ÷ÓÃ·½·¨£ºGUI_Line(0,0,240,320,0x0000);
 ****************************************************************************/
 void GUI_Line(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color)
 {
@@ -243,12 +243,12 @@ void GUI_Line(unsigned short x0, unsigned short y0, unsigned short x1, unsigned 
 }
 
 /****************************************************************************
-* ï¿½ï¿½    ï¿½Æ£ï¿½void GUI_Circle(unsigned short cx,unsigned short cy,unsigned short r,unsigned short color,unsigned char fill)
-* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ê»­Ô²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½
-* Ëµ    ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½
+* Ãû    ³Æ£ºvoid GUI_Circle(unsigned short cx,unsigned short cy,unsigned short r,unsigned short color,unsigned char fill)
+* ¹¦    ÄÜ£ºÔÚÖ¸¶¨×ù±ê»­Ô²£¬¿ÉÌî³ä
+* Èë¿Ú²ÎÊý£º
+* ³ö¿Ú²ÎÊý£º
+* Ëµ    Ã÷£º
+* µ÷ÓÃ·½·¨£º
 ****************************************************************************/
 void GUI_Circle(unsigned short cx,unsigned short cy,unsigned short r,unsigned short color,unsigned char fill)
 {
@@ -294,12 +294,12 @@ void GUI_Circle(unsigned short cx,unsigned short cy,unsigned short r,unsigned sh
 }
 
 /****************************************************************************
-* ï¿½ï¿½    ï¿½Æ£ï¿½void GUI_Rectangle(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color,unsigned char fill)
-* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ò»­¾ï¿½ï¿½Î£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«
-* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½
-* Ëµ    ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½
+* Ãû    ³Æ£ºvoid GUI_Rectangle(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color,unsigned char fill)
+* ¹¦    ÄÜ£ºÔÚÖ¸¶¨ÇøÓò»­¾ØÐÎ£¬¿ÉÌî³äÑÕÉ«
+* Èë¿Ú²ÎÊý£º
+* ³ö¿Ú²ÎÊý£º
+* Ëµ    Ã÷£º
+* µ÷ÓÃ·½·¨£º
 ****************************************************************************/
 void GUI_Rectangle(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1,unsigned short color,unsigned char fill) {
 	unsigned short h = y1-y0;
@@ -314,12 +314,12 @@ void GUI_Rectangle(unsigned short x0, unsigned short y0, unsigned short x1, unsi
 }
 
 /****************************************************************************
-* ï¿½ï¿½    ï¿½Æ£ï¿½void  GUI_Square(unsigned short x0, unsigned short y0, unsigned short with, unsigned short color,unsigned char fill)
-* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«
-* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½
-* Ëµ    ï¿½ï¿½ï¿½ï¿½
-* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½
+* Ãû    ³Æ£ºvoid  GUI_Square(unsigned short x0, unsigned short y0, unsigned short with, unsigned short color,unsigned char fill)
+* ¹¦    ÄÜ£ºÔÚÖ¸¶¨ÇøÓò»­Õý·½ÐÎ£¬¿ÉÌî³äÑÕÉ«
+* Èë¿Ú²ÎÊý£º
+* ³ö¿Ú²ÎÊý£º
+* Ëµ    Ã÷£º
+* µ÷ÓÃ·½·¨£º
 ****************************************************************************/
 void  GUI_Square(unsigned short x0, unsigned short y0, unsigned short with, unsigned short color,unsigned char fill)
 {
