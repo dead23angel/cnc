@@ -84,95 +84,94 @@ static unsigned int LCD_RD_data(void){
 static void    LCD_WR_Data(unsigned int val) {	*(__IO uint16_t *) (Bank1_LCD_D)= val; }
 static void Delay(__IO uint32_t nCount) {  for(; nCount != 0; nCount--) __NOP(); }
 
-void ili9320_Initializtion(){
- GPIO_ResetBits(GPIOE, GPIO_Pin_1); // RESET LCD
- ili9320_Delay(0xAFFf);
- GPIO_SetBits(GPIOE, GPIO_Pin_1 );
- ili9320_Delay(0xAFFf);
+void ili9320_Initializtion()
+{
+	unsigned int i;
+	GPIO_ResetBits(GPIOE, GPIO_Pin_1);
+	Delay(0xAFFf);
+	GPIO_SetBits(GPIOE, GPIO_Pin_1);		 //V7
+	Delay(0xAFFf);
 
-	LCD_WR_CMD(0x00E3, 0x3008); // Set internal timing
-	LCD_WR_CMD(0x00E7, 0x0012); // Set internal timing
-	LCD_WR_CMD(0x00EF, 0x1231); // Set internal timing
-	LCD_WR_CMD(0x0000, 0x0001); // Start Oscillation
-	LCD_WR_CMD(0x0001, 0x0100); // set SS and SM bit
-	LCD_WR_CMD(0x0002, 0x0700); // set 1 line inversion
+	//************* Start Initial Sequence **********//
+		LCD_WR_CMD(0x0001, 0x0100); // set SS and SM bit
+		LCD_WR_CMD(0x0002, 0x0700); // set 1 line inversion
+		LCD_WR_CMD(0x0003, 0x1030); // set GRAM write direction and BGR=1.
+		LCD_WR_CMD(0x0004, 0x0000); // Resize register
+		LCD_WR_CMD(0x0008, 0x0207); // set the back porch and front porch
+		LCD_WR_CMD(0x0009, 0x0000); // set non-display area refresh cycle ISC[3:0]
+		LCD_WR_CMD(0x000A, 0x0000); // FMARK function
+		LCD_WR_CMD(0x000C, 0x0000); // RGB interface setting
+		LCD_WR_CMD(0x000D, 0x0000); // Frame marker Position
+		LCD_WR_CMD(0x000F, 0x0000); // RGB interface polarity
+		//*************Power On sequence ****************//
+		LCD_WR_CMD(0x0010, 0x0000); // SAP, BT[3:0], AP, DSTB, SLP, STB
+		LCD_WR_CMD(0x0011, 0x0007); // DC1[2:0], DC0[2:0], VC[2:0]
+		LCD_WR_CMD(0x0012, 0x0000); // VREG1OUT voltage
+		LCD_WR_CMD(0x0013, 0x0000); // VDV[4:0] for VCOM amplitude
+		LCD_WR_CMD(0x0007, 0x0001);
+		Delay(12000); // Dis-charge capacitor power voltage
+		LCD_WR_CMD(0x0010, 0x1490); // SAP, BT[3:0], AP, DSTB, SLP, STB
+		LCD_WR_CMD(0x0011, 0x0227); // DC1[2:0], DC0[2:0], VC[2:0]
+		Delay(15500); // Delay 50ms
+		LCD_WR_CMD(0x0012, 0x001C); // Internal reference voltage= Vci;
+		Delay(15000); // Delay 50ms
+		LCD_WR_CMD(0x0013, 0x1A00); // Set VDV[4:0] for VCOM amplitude
+		LCD_WR_CMD(0x0029, 0x0025); // Set VCM[5:0] for VCOMH
+		LCD_WR_CMD(0x002B, 0x000C); // Set Frame Rate
+		Delay(15000); // Delay 50ms
+		LCD_WR_CMD(0x0020, 0x0000); // GRAM horizontal Address
+		LCD_WR_CMD(0x0021, 0x0000); // GRAM Vertical Address
+		// ----------- Adjust the Gamma Curve ----------//
+		LCD_WR_CMD(0x0030, 0x0000);
+		LCD_WR_CMD(0x0031, 0x0506);
+		LCD_WR_CMD(0x0032, 0x0104);
+		LCD_WR_CMD(0x0035, 0x0207);
+		LCD_WR_CMD(0x0036, 0x000F);
+		LCD_WR_CMD(0x0037, 0x0306);
+		LCD_WR_CMD(0x0038, 0x0102);
+		LCD_WR_CMD(0x0039, 0x0707);
+		LCD_WR_CMD(0x003C, 0x0702);
+		LCD_WR_CMD(0x003D, 0x1604);
+		//------------------ Set GRAM area ---------------//
+		LCD_WR_CMD(0x0050, 0x0000); // Horizontal GRAM Start Address
+		LCD_WR_CMD(0x0051, 0x00EF); // Horizontal GRAM End Address
+		LCD_WR_CMD(0x0052, 0x0000); // Vertical GRAM Start Address
+		LCD_WR_CMD(0x0053, 0x013F); // Vertical GRAM Start Address
+		LCD_WR_CMD(0x0060, 0xA700); // Gate Scan Line
+		LCD_WR_CMD(0x0061, 0x0001); // NDL,VLE, REV
 
-	LCD_WR_CMD(0x0003, 0x1030); // set GRAM write direction and BGR=0,262K colors,1 transfers/pixel.
-	LCD_WR_CMD(0x0004, 0x0000); // Resize register
-	LCD_WR_CMD(0x0008, 0x0202); // set the back porch and front porch
-	LCD_WR_CMD(0x0009, 0x0000); // set non-display area refresh cycle ISC[3:0]
-	LCD_WR_CMD(0x000A, 0x0000); // FMARK function
-	LCD_WR_CMD(0x000C, 0x0000); // RGB interface setting
-	LCD_WR_CMD(0x000D, 0x0000); // Frame marker Position
-	LCD_WR_CMD(0x000F, 0x0000); // RGB interface polarity
-//Power On sequence
-	LCD_WR_CMD(0x0010, 0x0000); // SAP, BT[3:0], AP, DSTB, SLP, STB
-	LCD_WR_CMD(0x0011, 0x0007); // DC1[2:0], DC0[2:0], VC[2:0]
-	LCD_WR_CMD(0x0012, 0x0000); // VREG1OUT voltage
-	LCD_WR_CMD(0x0013, 0x0000); // VDV[4:0] for VCOM amplitude
-	Delay(200); // Dis-charge capacitor power voltage
-	LCD_WR_CMD(0x0010, 0x1690); // SAP, BT[3:0], AP, DSTB, SLP, STB
-	LCD_WR_CMD(0x0011, 0x0227); // R11h=0x0221 at VCI=3.3V, DC1[2:0], DC0[2:0], VC[2:0]
-	Delay(50); // Delay 50ms
-	LCD_WR_CMD(0x0012, 0x001C); // External reference voltage= Vci;
-	Delay(50); // Delay 50ms
-	LCD_WR_CMD(0x0013, 0x1800); // R13=1200 when R12=009D;VDV[4:0] for VCOM amplitude
-	LCD_WR_CMD(0x0029, 0x001C); // R29=000C when R12=009D;VCM[5:0] for VCOMH
-	LCD_WR_CMD(0x002B, 0x000D); // Frame Rate = 91Hz
-	Delay(50); // Delay 50ms
-	LCD_WR_CMD(0x0020, 0x0000); // GRAM horizontal Address
-	LCD_WR_CMD(0x0021, 0x0000); // GRAM Vertical Address
-// ----------- Adjust the Gamma Curve ----------//
-	LCD_WR_CMD(0x0030, 0x0007);
-	LCD_WR_CMD(0x0031, 0x0302);
-	LCD_WR_CMD(0x0032, 0x0105);
-	LCD_WR_CMD(0x0035, 0x0206);
-	LCD_WR_CMD(0x0036, 0x0808);
-	LCD_WR_CMD(0x0037, 0x0206);
-	LCD_WR_CMD(0x0038, 0x0504);
-	LCD_WR_CMD(0x0039, 0x0007);
-	LCD_WR_CMD(0x003C, 0x0105);
-	LCD_WR_CMD(0x003D, 0x0808);
-//------------------ Set GRAM area ---------------//
-	LCD_WR_CMD(0x0050, 0x0000); // Horizontal GRAM Start Address
-	LCD_WR_CMD(0x0051, 0x00EF); // Horizontal GRAM End Address
-	LCD_WR_CMD(0x0052, 0x0000); // Vertical GRAM Start Address
-	LCD_WR_CMD(0x0053, 0x013F); // Vertical GRAM Start Address
-	LCD_WR_CMD(0x0060, 0xA700); // Gate Scan Line
-	LCD_WR_CMD(0x0061, 0x0001); // NDL,VLE, REV
-	LCD_WR_CMD(0x006A, 0x0000); // set scrolling line
-//-------------- Partial Display Control ---------//
-	LCD_WR_CMD(0x0080, 0x0000);
-	LCD_WR_CMD(0x0081, 0x0000);
-	LCD_WR_CMD(0x0082, 0x0000);
-	LCD_WR_CMD(0x0083, 0x0000);
-	LCD_WR_CMD(0x0084, 0x0000);
-	LCD_WR_CMD(0x0085, 0x0000);
-//-------------- Panel Control -------------------//
-	LCD_WR_CMD(0x0090, 0x0010);
-	LCD_WR_CMD(0x0092, 0x0000);
-	LCD_WR_CMD(0x0093, 0x0003);
-	LCD_WR_CMD(0x0095, 0x0110);
-	LCD_WR_CMD(0x0097, 0x0000);
-	LCD_WR_CMD(0x0098, 0x0000);
-	LCD_WR_CMD(0x0007, 0x0133); // 262K color and display ON
+		LCD_WR_CMD(0x006A, 0x0000); // set scrolling line
+		//-------------- Partial Display Control ---------//
+		LCD_WR_CMD(0x0080, 0x0000);
+		LCD_WR_CMD(0x0081, 0x0000);
+		LCD_WR_CMD(0x0082, 0x0000);
+		LCD_WR_CMD(0x0083, 0x0000);
+		LCD_WR_CMD(0x0084, 0x0000);
+		LCD_WR_CMD(0x0085, 0x0000);
+		//-------------- Panel Control -------------------//
+		LCD_WR_CMD(0x0090, 0x0010);
+		LCD_WR_CMD(0x0092, 0x0600);
+		LCD_WR_CMD(0x0007, 0x0133); // 262K color and display ON
 
- LCD_WR_CMD(32, 0);
- LCD_WR_CMD(33, 0x013F);
-	*(__IO uint16_t *) (Bank1_LCD_C)= 34;
-	for(int n = 0; n<76800; n++) LCD_WR_Data(0xf17f);
+	    LCD_WR_CMD(32, 0);
+	    LCD_WR_CMD(33, 0);
+		*(__IO uint16_t *) (Bank1_LCD_C)= 34;	 //Ã—Â¼Â±Â¸ÃÂ´ÃŠÃ½Â¾ÃÃÃ”ÃŠÂ¾Ã‡Ã¸
+		for(i=0;i<76800;i++)
+		{
+		  LCD_WR_Data(0xffff);					 //Ã“ÃƒÂºÃšÃ‰Â«Ã‡Ã¥Ã†Ã
+		}
 }
 
 /****************************************************************************
-* Ãû    ³Æ£ºvoid ili9320_SetWindows(u16 StartX,u16 StartY,u16 EndX,u16 EndY)
-* ¹¦    ÄÜ£ºÉèÖÃ´°¿ÚÇøÓò
-* Èë¿Ú²ÎÊý£ºStartX     ÐÐÆðÊ¼×ù±ê
-*           StartY     ÁÐÆðÊ¼×ù±ê
-*           EndX       ÐÐ½áÊø×ù±ê
-*           EndY       ÁÐ½áÊø×ù±ê
-* ³ö¿Ú²ÎÊý£ºÎÞ
-* Ëµ    Ã÷£º
-* µ÷ÓÃ·½·¨£ºili9320_SetWindows(0,0,100,100)£»
+* ï¿½ï¿½    ï¿½Æ£ï¿½void ili9320_SetWindows(u16 StartX,u16 StartY,u16 EndX,u16 EndY)
+* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½StartX     ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½
+*           StartY     ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½
+*           EndX       ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+*           EndY       ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* Ëµ    ï¿½ï¿½ï¿½ï¿½
+* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ili9320_SetWindows(0,0,100,100)ï¿½ï¿½
 ****************************************************************************/
 __inline void ili9320_SetWindows(u16 StartX,u16 StartY,u16 EndX,u16 EndY) {
  *(__IO uint16_t *) (Bank1_LCD_C)= 0x50;
@@ -189,12 +188,12 @@ __inline void ili9320_SetWindows(u16 StartX,u16 StartY,u16 EndX,u16 EndY) {
 }
 
 /****************************************************************************
-* Ãû    ³Æ£ºvoid ili9320_Clear(u16 dat)
-* ¹¦    ÄÜ£º½«ÆÁÄ»Ìî³ä³ÉÖ¸¶¨µÄÑÕÉ«£¬ÈçÇåÆÁ£¬ÔòÌî³ä 0xffff
-* Èë¿Ú²ÎÊý£ºdat      Ìî³äÖµ
-* ³ö¿Ú²ÎÊý£ºÎÞ
-* Ëµ    Ã÷£º
-* µ÷ÓÃ·½·¨£ºili9320_Clear(0xffff);
+* ï¿½ï¿½    ï¿½Æ£ï¿½void ili9320_Clear(u16 dat)
+* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0xffff
+* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½dat      ï¿½ï¿½ï¿½Öµ
+* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* Ëµ    ï¿½ï¿½ï¿½ï¿½
+* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ili9320_Clear(0xffff);
 ****************************************************************************/
 void ili9320_Clear(u16 dat) {
  u32 i;
@@ -271,14 +270,14 @@ u16 ili9320_GetPoint(u16 x,u16 y) {
 }
 
 /****************************************************************************
-* Ãû    ³Æ£ºvoid ili9320_SetPoint(u16 x,u16 y,u16 point)
-* ¹¦    ÄÜ£ºÔÚÖ¸¶¨×ù±ê»­µã
-* Èë¿Ú²ÎÊý£ºx      ÐÐ×ù±ê
-*           y      ÁÐ×ù±ê
-*           point  µãµÄÑÕÉ«
-* ³ö¿Ú²ÎÊý£ºÎÞ
-* Ëµ    Ã÷£º
-* µ÷ÓÃ·½·¨£ºili9320_SetPoint(10,10,0x0fe0);
+* ï¿½ï¿½    ï¿½Æ£ï¿½void ili9320_SetPoint(u16 x,u16 y,u16 point)
+* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ê»­ï¿½ï¿½
+* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½x      ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+*           y      ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+*           point  ï¿½ï¿½ï¿½ï¿½ï¿½É«
+* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* Ëµ    ï¿½ï¿½ï¿½ï¿½
+* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ili9320_SetPoint(10,10,0x0fe0);
 ****************************************************************************/
 void ili9320_SetPoint(u16 x,u16 y,u16 point) {
 	if ( (y>=240)||(x>=320) ) return;
@@ -293,16 +292,16 @@ void ili9320_SetPoint(u16 x,u16 y,u16 point) {
 }
 
 /****************************************************************************
-* Ãû    ³Æ£ºvoid ili9320_DrawPicture(u16 StartX,u16 StartY,u16 EndX,u16 EndY,u16 *pic)
-* ¹¦    ÄÜ£ºÔÚÖ¸¶¨×ù±ê·¶Î§ÏÔÊ¾Ò»¸±Í¼Æ¬
-* Èë¿Ú²ÎÊý£ºStartX     ÐÐÆðÊ¼×ù±ê
-*           StartY     ÁÐÆðÊ¼×ù±ê
-*           EndX       ÐÐ½áÊø×ù±ê
-*           EndY       ÁÐ½áÊø×ù±ê
-            pic        Í¼Æ¬Í·Ö¸Õë
-* ³ö¿Ú²ÎÊý£ºÎÞ
-* Ëµ    Ã÷£ºÍ¼Æ¬È¡Ä£¸ñÊ½ÎªË®Æ½É¨Ãè£¬16Î»ÑÕÉ«Ä£Ê½
-* µ÷ÓÃ·½·¨£ºili9320_DrawPicture(0,0,100,100,(u16*)demo);
+* ï¿½ï¿½    ï¿½Æ£ï¿½void ili9320_DrawPicture(u16 StartX,u16 StartY,u16 EndX,u16 EndY,u16 *pic)
+* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ê·¶Î§ï¿½ï¿½Ê¾Ò»ï¿½ï¿½Í¼Æ¬
+* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½StartX     ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½
+*           StartY     ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½
+*           EndX       ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+*           EndY       ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            pic        Í¼Æ¬Í·Ö¸ï¿½ï¿½
+* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* Ëµ    ï¿½ï¿½ï¿½ï¿½Í¼Æ¬È¡Ä£ï¿½ï¿½Ê½ÎªË®Æ½É¨ï¿½è£¬16Î»ï¿½ï¿½É«Ä£Ê½
+* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ili9320_DrawPicture(0,0,100,100,(u16*)demo);
 ****************************************************************************/
 void ili9320_DrawPicture(u16 StartX,u16 StartY,u16 EndX,u16 EndY,u16 *pic) {
  u16  i,temp;
@@ -310,7 +309,7 @@ void ili9320_DrawPicture(u16 StartX,u16 StartY,u16 EndX,u16 EndY,u16 *pic) {
  ili9320_SetCursor(StartX,StartY);
  //for (i=0;i<(EndX*EndY);i++) LCD_WR_Data(*pic++);
  //while(1);
-  //LCD_WR_CMD(0x0003,0x1018);   //×óÏÂÆð
+  //LCD_WR_CMD(0x0003,0x1018);   //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  /*ili9320_SetWindows(StartX,StartY,EndX,EndY);
  LCD_WR_CMD(0x0050, 0); // Horizontal GRAM Start Address
  LCD_WR_CMD(0x0051, 60); // Horizontal GRAM End Address
@@ -341,15 +340,15 @@ void ili9320_VLine(u16 x0, u16 y0, u16 h,u16 color) {
 }
 
 /****************************************************************************
-* Ãû    ³Æ£ºvoid ili9320_PutChar(u16 x,u16 y,u8 c,u16 charColor,u16 bkColor)
-* ¹¦    ÄÜ£ºÔÚÖ¸¶¨×ù±êÏÔÊ¾Ò»¸ö8x16µãÕóµÄascii×Ö·û
-* Èë¿Ú²ÎÊý£ºx          ÐÐ×ù±ê
-*           y          ÁÐ×ù±ê
-*           charColor  ×Ö·ûµÄÑÕÉ«
-*           bkColor    ×Ö·û±³¾°ÑÕÉ«
-* ³ö¿Ú²ÎÊý£ºÎÞ
-* Ëµ    Ã÷£ºÏÔÊ¾·¶Î§ÏÞ¶¨Îª¿ÉÏÔÊ¾µÄasciiÂë
-* µ÷ÓÃ·½·¨£ºili9320_PutChar(10,10,'a',0x0000,0xffff);
+* ï¿½ï¿½    ï¿½Æ£ï¿½void ili9320_PutChar(u16 x,u16 y,u8 c,u16 charColor,u16 bkColor)
+* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾Ò»ï¿½ï¿½8x16ï¿½ï¿½ï¿½ï¿½ï¿½asciiï¿½Ö·ï¿½
+* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½x          ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+*           y          ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+*           charColor  ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½É«
+*           bkColor    ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«
+* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* Ëµ    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Î§ï¿½Þ¶ï¿½Îªï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½asciiï¿½ï¿½
+* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ili9320_PutChar(10,10,'a',0x0000,0xffff);
 ****************************************************************************/
 void ili9320_PutChar(u16 x,u16 y,u8 c,u16 charColor,u16 bkColor)
 {
@@ -365,23 +364,23 @@ void ili9320_PutChar(u16 x,u16 y,u8 c,u16 charColor,u16 bkColor)
     {
       if ( ((tmp_char >> (7-j)) & 0x01) == 0x01)
         {
-          ili9320_SetPoint(x+j,y+i,charColor); // ×Ö·ûÑÕÉ«
+          ili9320_SetPoint(x+j,y+i,charColor); // ï¿½Ö·ï¿½ï¿½ï¿½É«
         }
         else
         {
-          ili9320_SetPoint(x+j,y+i,bkColor); // ±³¾°ÑÕÉ«
+          ili9320_SetPoint(x+j,y+i,bkColor); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«
         }
     }
   }
 }
 
 /****************************************************************************
-* Ãû    ³Æ£ºvoid ili9320_Test()
-* ¹¦    ÄÜ£º²âÊÔÒº¾§ÆÁ
-* Èë¿Ú²ÎÊý£ºÎÞ
-* ³ö¿Ú²ÎÊý£ºÎÞ
-* Ëµ    Ã÷£ºÏÔÊ¾²ÊÌõ£¬²âÊÔÒº¾§ÆÁÊÇ·ñÕý³£¹¤×÷
-* µ÷ÓÃ·½·¨£ºili9320_Test();
+* ï¿½ï¿½    ï¿½Æ£ï¿½void ili9320_Test()
+* ï¿½ï¿½    ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½Òºï¿½ï¿½ï¿½ï¿½
+* ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* Ëµ    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òºï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+* ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ili9320_Test();
 ****************************************************************************/
 void ili9320_Test() {
  u16 i,j;
