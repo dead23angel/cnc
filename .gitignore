@@ -1,0 +1,6 @@
+[Oo]ut/
+[Dd]ebug/
+[Rr]elease/
+*.dep
+*.o
+*.lst
