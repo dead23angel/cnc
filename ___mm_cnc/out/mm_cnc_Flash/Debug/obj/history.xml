@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m4 -mthumb -Wall -ffunction-sections -g -O0 -std=gnu99 -c -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -DUSE_USB_OTG_FS -DSTM32F40_41xxx -DUSE_STM324xG_EVAL -DSTM32F407VE -DSTM32F4XX -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\application\stepmotor -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\cmsis -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\cmsis_lib -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\cmsis_boot -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\liblcd -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\libusbd\Class\msc\inc -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\application\encoder -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\application -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\libsd -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\application\gcode -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\libfs -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\libusbd -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\application\limits -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\libusbd\Class\msc -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\librtc -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\cmsis_lib\include -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\libkbd -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\libusbd\Class -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\libusbd\Core\inc -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\application\spindle -I..\..\..\..\..\arduino&stm32\stm32tft\mm_cnc\src\libusbd\Core">
+      <target file="usbd_msc_bot.o" lastModified="16c6fd3e1f0">
+         <source file="..\..\..\..\src\libusbd\Class\msc\src\usbd_msc_bot.c" lastModified="1363993fe70"/>
+      </target>
+      <target file="stm32f4xx_fsmc.o" lastModified="16c6fd3d500">
+         <source file="..\..\..\..\src\cmsis_lib\source\stm32f4xx_fsmc.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="usbd_usr.o" lastModified="16c6fd3c2df">
+         <source file="..\..\..\..\src\libusbd\usbd_usr.c" lastModified="14218a38b14"/>
+      </target>
+      <target file="usbd_storage_msd.o" lastModified="16c6fd3d08b">
+         <source file="..\..\..\..\src\libusbd\Class\msc\src\usbd_storage_msd.c" lastModified="13639944c90"/>
+      </target>
+      <target file="misc.o" lastModified="16c6fd3dd9b">
+         <source file="..\..\..\..\src\cmsis_lib\source\misc.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="stepmotor.o" lastModified="16c6fd3c3d9">
+         <source file="..\..\..\..\src\application\stepmotor\stepmotor.c" lastModified="14212f0831e"/>
+      </target>
+      <target file="gcode.o" lastModified="16c6fd3c919">
+         <source file="..\..\..\..\src\application\gcode\gcode.c" lastModified="16c6fa2815b"/>
+      </target>
+      <target file="scr_io.o" lastModified="16c6fd3d33a">
+         <source file="..\..\..\..\src\liblcd\scr_io.c" lastModified="16c6aae25ec"/>
+      </target>
+      <target file="lcd_api.o" lastModified="16c6fd3d240">
+         <source file="..\..\..\..\src\liblcd\lcd_api.c" lastModified="16c6a91fb14"/>
+      </target>
+      <target file="usbd_ioreq.o" lastModified="16c6fd3e163">
+         <source file="..\..\..\..\src\libusbd\Core\src\usbd_ioreq.c" lastModified="1363993fe70"/>
+      </target>
+      <target file="usbd_req.o" lastModified="16c6fd3d80d">
+         <source file="..\..\..\..\src\libusbd\Core\src\usbd_req.c" lastModified="141a0db69ee"/>
+      </target>
+      <target file="usbd_msc_scsi.o" lastModified="16c6fd3d137">
+         <source file="..\..\..\..\src\libusbd\Class\msc\src\usbd_msc_scsi.c" lastModified="141a0d71b35"/>
+      </target>
+      <target file="diskio.o" lastModified="16c6fd3c9c5">
+         <source file="..\..\..\..\src\libfs\diskio.c" lastModified="16c63d06a54"/>
+      </target>
+      <target file="stm32f4xx_tim.o" lastModified="16c6fd3e2da">
+         <source file="..\..\..\..\src\cmsis_lib\source\stm32f4xx_tim.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="usbd_desc.o" lastModified="16c6fd3d1b4">
+         <source file="..\..\..\..\src\libusbd\usbd_desc.c" lastModified="13639944c90"/>
+      </target>
+      <target file="lcd.o" lastModified="16c6fd3dd2d">
+         <source file="..\..\..\..\src\liblcd\lcd.c" lastModified="16c6aa72056"/>
+      </target>
+      <target file="stm32f4xx_gpio.o" lastModified="16c6fd3d58c">
+         <source file="..\..\..\..\src\cmsis_lib\source\stm32f4xx_gpio.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="limits.o" lastModified="16c6fd3df21">
+         <source file="..\..\..\..\src\application\limits\limits.c" lastModified="14207e435e5"/>
+      </target>
+      <target file="usb_bsp.o" lastModified="16c6fd3d761">
+         <source file="..\..\..\..\src\libusbd\usb_bsp.c" lastModified="141ef41e37e"/>
+      </target>
+      <target file="usbd_msc_data.o" lastModified="16c6fd3d907">
+         <source file="..\..\..\..\src\libusbd\Class\msc\src\usbd_msc_data.c" lastModified="1363993fe70"/>
+      </target>
+      <target file="usbd_core.o" lastModified="16c6fd3cc45">
+         <source file="..\..\..\..\src\libusbd\Core\src\usbd_core.c" lastModified="1363993fe70"/>
+      </target>
+      <target file="hw_config.o" lastModified="16c6fd3cb1c">
+         <source file="..\..\..\..\src\application\hw_config.c" lastModified="16c45f01352"/>
+      </target>
+      <target file="stm32f4xx_rtc.o" lastModified="16c6fd3e0d7">
+         <source file="..\..\..\..\src\cmsis_lib\source\stm32f4xx_rtc.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="stm32f4xx_rcc.o" lastModified="16c6fd3ce0a">
+         <source file="..\..\..\..\src\cmsis_lib\source\stm32f4xx_rcc.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="stm32f4xx_pwr.o" lastModified="16c6fd3c466">
+         <source file="..\..\..\..\src\cmsis_lib\source\stm32f4xx_pwr.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="gcode_exec.o" lastModified="16c6fd3c7a2">
+         <source file="..\..\..\..\src\application\gcode\gcode_exec.c" lastModified="16c1312af26"/>
+      </target>
+      <target file="usb_dcd.o" lastModified="16c6fd3de27">
+         <source file="..\..\..\..\src\libusbd\Core\src\usb_dcd.c" lastModified="13639940640"/>
+      </target>
+      <target file="startup_stm32f4xx.o" lastModified="16c6fd3ca03">
+         <source file="..\..\..\..\src\cmsis_boot\startup\startup_stm32f4xx.c" lastModified="14201d853b6"/>
+      </target>
+      <target file="ccsbcs.o" lastModified="16c6fd3d6f4">
+         <source file="..\..\..\..\src\libfs\option\ccsbcs.c" lastModified="13c4e5a4bb0"/>
+      </target>
+      <target file="sdio_sd_conf.o" lastModified="16c6fd3c0eb">
+         <source file="..\..\..\..\src\libsd\sdio_sd_conf.c" lastModified="16c63dde85d"/>
+      </target>
+      <target file="stm32f4xx_dma.o" lastModified="16c6fd3d6a5">
+         <source file="..\..\..\..\src\cmsis_lib\source\stm32f4xx_dma.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="manualmode.o" lastModified="16c6fd3dffc">
+         <source file="..\..\..\..\src\application\manualmode.c" lastModified="16c13172e8d"/>
+      </target>
+      <target file="keyboard.o" lastModified="16c6fd3d463">
+         <source file="..\..\..\..\src\libkbd\keyboard.c" lastModified="16c63e4bde1"/>
+      </target>
+      <target file="usbd_msc_core.o" lastModified="16c6fd3cba9">
+         <source file="..\..\..\..\src\libusbd\Class\msc\src\usbd_msc_core.c" lastModified="1363993fe70"/>
+      </target>
+      <target file="rtc.o" lastModified="16c6fd3c5ec">
+         <source file="..\..\..\..\src\librtc\rtc.c" lastModified="14209bffd94"/>
+      </target>
+      <target file="stm32f4xx_sdio.o" lastModified="16c6fd3c243">
+         <source file="..\..\..\..\src\cmsis_lib\source\stm32f4xx_sdio.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="stm32f4xx_it.o" lastModified="16c6fd3cec6">
+         <source file="..\..\..\..\src\application\stm32f4xx_it.c" lastModified="141f4f8bbf5"/>
+      </target>
+      <target file="sdio_sd.o" lastModified="16c6fd3c550">
+         <source file="..\..\..\..\src\libsd\sdio_sd.c" lastModified="1421b99300d"/>
+      </target>
+      <target file="usb_core.o" lastModified="16c6fd3c1b6">
+         <source file="..\..\..\..\src\libusbd\Core\src\usb_core.c" lastModified="13639940640"/>
+      </target>
+      <target file="stm32f4xx_syscfg.o" lastModified="16c6fd3c04f">
+         <source file="..\..\..\..\src\cmsis_lib\source\stm32f4xx_syscfg.c" lastModified="1412b7e75d0"/>
+      </target>
+      <target file="ff.o" lastModified="16c6fd3db97">
+         <source file="..\..\..\..\src\libfs\ff.c" lastModified="141751480e0"/>
+      </target>
+      <target file="encoder.o" lastModified="16c6fd3d00e">
+         <source file="..\..\..\..\src\application\encoder\encoder.c" lastModified="141f538e32d"/>
+      </target>
+      <target file="main.o" lastModified="16c6fd3cd5e">
+         <source file="..\..\..\..\src\application\main.c" lastModified="16c6fc48f89"/>
+      </target>
+      <target file="spindle.o" lastModified="16c6fd3da5f">
+         <source file="..\..\..\..\src\application\spindle\spindle.c" lastModified="1420eda2bf5"/>
+      </target>
+      <target file="system_stm32f4xx.o" lastModified="16c6fd3d619">
+         <source file="..\..\..\..\src\cmsis_boot\system_stm32f4xx.c" lastModified="14135e26d2a"/>
+      </target>
+      <target file="usb_dcd_int.o" lastModified="16c6fd3d8a9">
+         <source file="..\..\..\..\src\libusbd\Core\src\usb_dcd_int.c" lastModified="13639940640"/>
+      </target>
+   </processor>
+</history>

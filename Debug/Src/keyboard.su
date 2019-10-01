@@ -1,0 +1,3 @@
+keyboard.c:5:13:kbd_putKey	16	static
+keyboard.c:10:6:kbd_proc	16	static
+keyboard.c:34:5:kbd_getKey	4	static

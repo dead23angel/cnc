@@ -1,0 +1,40 @@
+Сравнение файлов n_startup_stm32f4xx.c и W_STARTUP_STM32F4XX.C
+***** n_startup_stm32f4xx.c
+/*----------Stack Configuration-----------------------------------------------*/
+#define STACK_SIZE       0x00000200      /*!< Stack size (in Words)           */
+__attribute__ ((section(".co_stack")))
+***** W_STARTUP_STM32F4XX.C
+/*----------Stack Configuration-----------------------------------------------*/
+#define STACK_SIZE       0x00000200      /*!< The Stack size suggest using even number    */
+__attribute__ ((section(".co_stack")))
+*****
+
+***** n_startup_stm32f4xx.c
+/* System exception vector handler */
+void WEAK  Reset_Handler(void);
+***** W_STARTUP_STM32F4XX.C
+/* System exception vector handler */
+__attribute__ ((used))
+void WEAK  Reset_Handler(void);
+*****
+
+***** n_startup_stm32f4xx.c
+  */
+__attribute__ ((section(".isr_vector")))
+void (* const g_pfnVectors[])(void) =
+***** W_STARTUP_STM32F4XX.C
+  */
+__attribute__ ((used,section(".isr_vector")))
+void (* const g_pfnVectors[])(void) =
+*****
+
+***** n_startup_stm32f4xx.c
+  /*----------Core Exceptions------------------------------------------------ */
+  (void *)&pulStack[STACK_SIZE-1],     /*!< The initial stack pointer         */
+  Reset_Handler,             /*!< Reset Handler                               */
+***** W_STARTUP_STM32F4XX.C
+  /*----------Core Exceptions------------------------------------------------ */
+  (void *)&pulStack[STACK_SIZE],     /*!< The initial stack pointer         */
+  Reset_Handler,             /*!< Reset Handler                               */
+*****
+

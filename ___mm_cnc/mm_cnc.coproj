@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Project version="2G" name="mm_cnc">
+  <Target name="mm_cnc_Flash" isCurrent="1">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="487" chipName="STM32F407VE" boardId="" boardName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="0"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-std=gnu99;"/>
+        <Option name="FPU" value="0"/>
+        <Includepaths>
+          <Includepath path="."/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_STDPERIPH_DRIVER"/>
+          <Define name="__ASSEMBLY__"/>
+          <Define name="USE_USB_OTG_FS"/>
+          <Define name="STM32F40_41xxx"/>
+          <Define name="USE_STM324xG_EVAL"/>
+          <Define name="STM32F407VE"/>
+          <Define name="STM32F4XX"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseCLib" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <Option name="UseMemoryLayout" value="1"/>
+        <Option name="Library" value="Not use C Library"/>
+        <LinkedLibraries>
+          <Libset dir="" libs="m"/>
+        </LinkedLibraries>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00080000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00020000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="0x00010000" startValue="0x10000000"/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../programs/coide/configuration/programdata/mm_cnc/link.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="out/"/>
+        <Option name="Name" value="mm_cnc_flash"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+        <Option name="ComponentFileStoragePath" value="."/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value="${gcc.home}\arm-none-eabi-objdump.exe -d -S ${project.bin}/${project.name}_flash.elf &gt; ${project.bin}/${project.name}.txt"/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="JTAG"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="STM32F4xx_512.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="mm_cnc_RAM" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="487" chipName="STM32F407VE" boardId="" boardName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="0"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value=""/>
+        <Includepaths>
+          <Includepath path="."/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_STDPERIPH_DRIVER"/>
+          <Define name="__ASSEMBLY__"/>
+          <Define name="STM32F407VE"/>
+          <Define name="STM32F4XX"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseCLib" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="0">
+          <Memory name="IROM1" type="ReadOnly" size="0x00080000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00020000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="0x00010000" startValue="0x10000000"/>
+        </MemoryAreas>
+        <LocateLinkFile path="link.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="F:/Other/prj/coocox/mm_cnc"/>
+        <Option name="Name" value="mm_cnc_RAM"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="STM32F4xx_512.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Components path="./">
+    <Component id="54" name="M4 CMSIS Core" path="" type="2"/>
+    <Component id="500" name="CMSIS BOOT" path="" type="2"/>
+    <Component id="501" name="RCC" path="" type="2"/>
+    <Component id="502" name="PWR" path="" type="2"/>
+    <Component id="504" name="GPIO" path="" type="2"/>
+    <Component id="506" name="RTC" path="" type="2"/>
+    <Component id="511" name="DMA" path="" type="2"/>
+    <Component id="513" name="TIM" path="" type="2"/>
+    <Component id="516" name="FSMC" path="" type="2"/>
+    <Component id="520" name="SDIO" path="" type="2"/>
+    <Component id="524" name="MISC" path="" type="2"/>
+    <Component id="526" name="SYSCFG" path="" type="2"/>
+  </Components>
+  <Files>
+    <File name="libfs/ccsbcs.c" path="src/libfs/option/ccsbcs.c" type="1"/>
+    <File name="librtc/rtc.c" path="src/librtc/rtc.c" type="1"/>
+    <File name="libusbd/Class/msc/src" path="" type="2"/>
+    <File name="libusbd/usb_bsp.c" path="src/libusbd/usb_bsp.c" type="1"/>
+    <File name="libusbd/Core/src/usbd_ioreq.c" path="src/libusbd/Core/src/usbd_ioreq.c" type="1"/>
+    <File name="appl" path="" type="2"/>
+    <File name="appl/stepmotor/stepmotor.c" path="src/application/stepmotor/stepmotor.c" type="1"/>
+    <File name="libkbd/keyboard.c" path="src/libkbd/keyboard.c" type="1"/>
+    <File name="libkbd" path="" type="2"/>
+    <File name="liblcd/lcd_api.c" path="src/liblcd/lcd_api.c" type="1"/>
+    <File name="liblcd/lcd.c" path="src/liblcd/lcd.c" type="1"/>
+    <File name="cmsis/core_cm4_simd.h" path="src/cmsis/core_cm4_simd.h" type="1"/>
+    <File name="cmsis_boot/stm32f4xx.h" path="src/cmsis_boot/stm32f4xx.h" type="1"/>
+    <File name="cmsis/core_cmFunc.h" path="src/cmsis/core_cmFunc.h" type="1"/>
+    <File name="libusbd/Class" path="" type="2"/>
+    <File name="appl/stm32f4xx_it.h" path="src/application/stm32f4xx_it.h" type="1"/>
+    <File name="libusbd/Class/msc/src/usbd_msc_scsi.c" path="src/libusbd/Class/msc/src/usbd_msc_scsi.c" type="1"/>
+    <File name="libfs/integer.h" path="src/libfs/integer.h" type="1"/>
+    <File name="libusbd/Core/inc/usb_dcd_int.h" path="src/libusbd/Core/inc/usb_dcd_int.h" type="1"/>
+    <File name="libusbd/Core/inc/usbd_ioreq.h" path="src/libusbd/Core/inc/usbd_ioreq.h" type="1"/>
+    <File name="libsd/sdio_sd.c" path="src/libsd/sdio_sd.c" type="1"/>
+    <File name="libusbd/usbd_desc.c" path="src/libusbd/usbd_desc.c" type="1"/>
+    <File name="libusbd/Core/inc/usbd_req.h" path="src/libusbd/Core/inc/usbd_req.h" type="1"/>
+    <File name="appl/delay.h" path="src/application/delay.h" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_rtc.c" path="src/cmsis_lib/source/stm32f4xx_rtc.c" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_rcc.h" path="src/cmsis_lib/include/stm32f4xx_rcc.h" type="1"/>
+    <File name="libusbd/Class/msc/src/usbd_msc_data.c" path="src/libusbd/Class/msc/src/usbd_msc_data.c" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_syscfg.c" path="src/cmsis_lib/source/stm32f4xx_syscfg.c" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_pwr.h" path="src/cmsis_lib/include/stm32f4xx_pwr.h" type="1"/>
+    <File name="liblcd" path="" type="2"/>
+    <File name="cmsis_boot/startup/startup_stm32f4xx.c" path="src/cmsis_boot/startup/startup_stm32f4xx.c" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_rcc.c" path="src/cmsis_lib/source/stm32f4xx_rcc.c" type="1"/>
+    <File name="libusbd/Core/inc/usb_core.h" path="src/libusbd/Core/inc/usb_core.h" type="1"/>
+    <File name="cmsis/core_cmInstr.h" path="src/cmsis/core_cmInstr.h" type="1"/>
+    <File name="libusbd/Core/src/usbd_core.c" path="src/libusbd/Core/src/usbd_core.c" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_pwr.c" path="src/cmsis_lib/source/stm32f4xx_pwr.c" type="1"/>
+    <File name="appl/stepmotor" path="" type="2"/>
+    <File name="libusbd/usbd_conf.h" path="src/libusbd/usbd_conf.h" type="1"/>
+    <File name="appl/gcode/gcode.c" path="src/application/gcode/gcode.c" type="1"/>
+    <File name="appl/stm32f4xx_it.c" path="src/application/stm32f4xx_it.c" type="1"/>
+    <File name="liblcd/lcd.h" path="src/liblcd/lcd.h" type="1"/>
+    <File name="appl/encoder" path="" type="2"/>
+    <File name="libsd/sdio_sd.h" path="src/libsd/sdio_sd.h" type="1"/>
+    <File name="libusbd/usb_conf.h" path="src/libusbd/usb_conf.h" type="1"/>
+    <File name="libusbd/Class/msc/inc/usbd_msc_bot.h" path="src/libusbd/Class/msc/inc/usbd_msc_bot.h" type="1"/>
+    <File name="libusbd/Class/msc" path="" type="2"/>
+    <File name="cmsis_boot/system_stm32f4xx.c" path="src/cmsis_boot/system_stm32f4xx.c" type="1"/>
+    <File name="libusbd/Core/src/usbd_req.c" path="src/libusbd/Core/src/usbd_req.c" type="1"/>
+    <File name="libfs/diskio.c" path="src/libfs/diskio.c" type="1"/>
+    <File name="cmsis" path="" type="2"/>
+    <File name="cmsis_lib" path="" type="2"/>
+    <File name="libusbd/Class/msc/src/usbd_msc_core.c" path="src/libusbd/Class/msc/src/usbd_msc_core.c" type="1"/>
+    <File name="libusbd/usbd_usr.h" path="src/libusbd/usbd_usr.h" type="1"/>
+    <File name="libusbd/Core/inc/usbd_core.h" path="src/libusbd/Core/inc/usbd_core.h" type="1"/>
+    <File name="libusbd/Core/inc/usb_dcd.h" path="src/libusbd/Core/inc/usb_dcd.h" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_rtc.h" path="src/cmsis_lib/include/stm32f4xx_rtc.h" type="1"/>
+    <File name="cmsis_lib/include/misc.h" path="src/cmsis_lib/include/misc.h" type="1"/>
+    <File name="libusbd/usbd_desc.h" path="src/libusbd/usbd_desc.h" type="1"/>
+    <File name="libusbd/Core/src/usb_dcd_int.c" path="src/libusbd/Core/src/usb_dcd_int.c" type="1"/>
+    <File name="appl/gcode" path="" type="2"/>
+    <File name="libusbd/Core/src" path="" type="2"/>
+    <File name="appl/manualmode.c" path="src/application/manualmode.c" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_gpio.c" path="src/cmsis_lib/source/stm32f4xx_gpio.c" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_dma.c" path="src/cmsis_lib/source/stm32f4xx_dma.c" type="1"/>
+    <File name="libfs/diskio.h" path="src/libfs/diskio.h" type="1"/>
+    <File name="liblcd/scr_io.c" path="src/liblcd/scr_io.c" type="1"/>
+    <File name="cmsis_boot" path="" type="2"/>
+    <File name="cmsis_lib/include/stm32f4xx_syscfg.h" path="src/cmsis_lib/include/stm32f4xx_syscfg.h" type="1"/>
+    <File name="appl/limits" path="" type="2"/>
+    <File name="cmsis_lib/source/stm32f4xx_fsmc.c" path="src/cmsis_lib/source/stm32f4xx_fsmc.c" type="1"/>
+    <File name="appl/encoder/encoder.c" path="src/application/encoder/encoder.c" type="1"/>
+    <File name="libusbd/Class/msc/inc" path="" type="2"/>
+    <File name="libusbd/usbd_usr.c" path="src/libusbd/usbd_usr.c" type="1"/>
+    <File name="appl/gcode/gcode_exec.c" path="src/application/gcode/gcode_exec.c" type="1"/>
+    <File name="cmsis_boot/startup" path="" type="2"/>
+    <File name="appl/spindle/spindle.h" path="src/application/spindle/spindle.h" type="1"/>
+    <File name="cmsis/core_cm4.h" path="src/cmsis/core_cm4.h" type="1"/>
+    <File name="libusbd" path="" type="2"/>
+    <File name="appl/encoder/encoder.h" path="src/application/encoder/encoder.h" type="1"/>
+    <File name="libusbd/Core" path="" type="2"/>
+    <File name="libsd/sdio_sd_conf.h" path="src/libsd/sdio_sd_conf.h" type="1"/>
+    <File name="libfs/ff.h" path="src/libfs/ff.h" type="1"/>
+    <File name="appl/limits/limits.h" path="src/application/limits/limits.h" type="1"/>
+    <File name="libusbd/Class/msc/src/usbd_msc_bot.c" path="src/libusbd/Class/msc/src/usbd_msc_bot.c" type="1"/>
+    <File name="libusbd/Class/msc/inc/usbd_msc_mem.h" path="src/libusbd/Class/msc/inc/usbd_msc_mem.h" type="1"/>
+    <File name="appl/global.h" path="src/application/global.h" type="1"/>
+    <File name="libusbd/usb_bsp.h" path="src/libusbd/usb_bsp.h" type="1"/>
+    <File name="cmsis_lib/source/misc.c" path="src/cmsis_lib/source/misc.c" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_tim.h" path="src/cmsis_lib/include/stm32f4xx_tim.h" type="1"/>
+    <File name="cmsis_lib/source" path="" type="2"/>
+    <File name="appl/hw_config.h" path="src/application/hw_config.h" type="1"/>
+    <File name="libusbd/Core/inc/usb_defines.h" path="src/libusbd/Core/inc/usb_defines.h" type="1"/>
+    <File name="cmsis_boot/stm32f4xx_conf.h" path="src/cmsis_boot/stm32f4xx_conf.h" type="1"/>
+    <File name="libsd" path="" type="2"/>
+    <File name="liblcd/scr_io.h" path="src/liblcd/scr_io.h" type="1"/>
+    <File name="cmsis_boot/system_stm32f4xx.h" path="src/cmsis_boot/system_stm32f4xx.h" type="1"/>
+    <File name="libfs/ff.c" path="src/libfs/ff.c" type="1"/>
+    <File name="libusbd/Core/inc/usbd_def.h" path="src/libusbd/Core/inc/usbd_def.h" type="1"/>
+    <File name="libusbd/Class/msc/src/usbd_storage_msd.c" path="src/libusbd/Class/msc/src/usbd_storage_msd.c" type="1"/>
+    <File name="appl/gcode/gcode.h" path="src/application/gcode/gcode.h" type="1"/>
+    <File name="librtc" path="" type="2"/>
+    <File name="libfs" path="" type="2"/>
+    <File name="libusbd/Class/msc/inc/usbd_msc_data.h" path="src/libusbd/Class/msc/inc/usbd_msc_data.h" type="1"/>
+    <File name="libusbd/Class/msc/inc/usbd_msc_scsi.h" path="src/libusbd/Class/msc/inc/usbd_msc_scsi.h" type="1"/>
+    <File name="libfs/ffconf.h" path="src/libfs/ffconf.h" type="1"/>
+    <File name="appl/spindle/spindle.c" path="src/application/spindle/spindle.c" type="1"/>
+    <File name="libusbd/Class/msc/inc/usbd_msc_core.h" path="src/libusbd/Class/msc/inc/usbd_msc_core.h" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_sdio.h" path="src/cmsis_lib/include/stm32f4xx_sdio.h" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_sdio.c" path="src/cmsis_lib/source/stm32f4xx_sdio.c" type="1"/>
+    <File name="libusbd/Core/inc" path="" type="2"/>
+    <File name="librtc/rtc.h" path="src/librtc/rtc.h" type="1"/>
+    <File name="libusbd/Core/inc/usb_regs.h" path="src/libusbd/Core/inc/usb_regs.h" type="1"/>
+    <File name="appl/stepmotor/stepmotor.h" path="src/application/stepmotor/stepmotor.h" type="1"/>
+    <File name="libusbd/Core/src/usb_core.c" path="src/libusbd/Core/src/usb_core.c" type="1"/>
+    <File name="liblcd/lcd_font.h" path="src/liblcd/lcd_font.h" type="1"/>
+    <File name="appl/limits/limits.c" path="src/application/limits/limits.c" type="1"/>
+    <File name="appl/spindle" path="" type="2"/>
+    <File name="libkbd/keyboard.h" path="src/libkbd/keyboard.h" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_dma.h" path="src/cmsis_lib/include/stm32f4xx_dma.h" type="1"/>
+    <File name="cmsis_lib/source/stm32f4xx_tim.c" path="src/cmsis_lib/source/stm32f4xx_tim.c" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_gpio.h" path="src/cmsis_lib/include/stm32f4xx_gpio.h" type="1"/>
+    <File name="libusbd/Core/src/usb_dcd.c" path="src/libusbd/Core/src/usb_dcd.c" type="1"/>
+    <File name="cmsis_lib/include/stm32f4xx_fsmc.h" path="src/cmsis_lib/include/stm32f4xx_fsmc.h" type="1"/>
+    <File name="appl/hw_config.c" path="src/application/hw_config.c" type="1"/>
+    <File name="libsd/sdio_sd_conf.c" path="src/libsd/sdio_sd_conf.c" type="1"/>
+    <File name="cmsis_lib/include" path="" type="2"/>
+    <File name="appl/main.c" path="src/application/main.c" type="1"/>
+  </Files>
+</Project>

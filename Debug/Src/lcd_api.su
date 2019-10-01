@@ -1,0 +1,6 @@
+lcd_api.c:6:16:GUI_Color565	24	static
+lcd_api.c:17:6:GUI_Text	48	static
+lcd_api.c:27:6:GUI_Line	56	static
+lcd_api.c:202:6:GUI_Circle	40	static
+lcd_api.c:245:6:GUI_Rectangle	40	static
+lcd_api.c:259:7:GUI_Square	32	static

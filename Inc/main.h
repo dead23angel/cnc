@@ -28,12 +28,12 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f1xx_hal.h"
-#include "stm32f1xx_hal.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -43,28 +43,66 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
+#define TRUE true
+#define FALSE false
+//#define SHOW_INIT_SCR
+//#define HAS_ENCODER
+//#define DEBUG_MODE
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#ifdef DEBUG_MODE
+ #define DBG(...) { rf_printf(__VA_ARGS__); }
+#else
+ #define DBG(...) {}
+#endif
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+char *str_trim(char *str);
+uint8_t questionYesNo(char *msg, char *param);
+void manualMode(void);
+void showCriticalStatus(char *msg, int st);
+uint16_t calcColor(uint8_t val);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define USB_CONNECT_Pin GPIO_PIN_13
-#define USB_CONNECT_GPIO_Port GPIOC
-#define BUTTON1_Pin GPIO_PIN_15
-#define BUTTON1_GPIO_Port GPIOB
-#define LED1_Pin GPIO_PIN_5
-#define LED1_GPIO_Port GPIOB
+#define COL_3_Pin GPIO_PIN_2
+#define COL_3_GPIO_Port GPIOE
+#define COL_2_Pin GPIO_PIN_3
+#define COL_2_GPIO_Port GPIOE
+#define COL_1_Pin GPIO_PIN_5
+#define COL_1_GPIO_Port GPIOE
+#define COL_0_Pin GPIO_PIN_13
+#define COL_0_GPIO_Port GPIOC
+#define ROW_3_Pin GPIO_PIN_0
+#define ROW_3_GPIO_Port GPIOC
+#define ROW_2_Pin GPIO_PIN_1
+#define ROW_2_GPIO_Port GPIOC
+#define ROW_1_Pin GPIO_PIN_2
+#define ROW_1_GPIO_Port GPIOC
+#define ROW_0_Pin GPIO_PIN_3
+#define ROW_0_GPIO_Port GPIOC
+#define LED_0_Pin GPIO_PIN_6
+#define LED_0_GPIO_Port GPIOA
+#define LED_1_Pin GPIO_PIN_7
+#define LED_1_GPIO_Port GPIOA
+#define LCD_BL_Pin GPIO_PIN_1
+#define LCD_BL_GPIO_Port GPIOB
+#define LIMIT_X_Pin GPIO_PIN_12
+#define LIMIT_X_GPIO_Port GPIOB
+#define LIMIT_Y_Pin GPIO_PIN_13
+#define LIMIT_Y_GPIO_Port GPIOB
+#define LIMIT_Z_Pin GPIO_PIN_14
+#define LIMIT_Z_GPIO_Port GPIOB
+#define SD_CD_Pin GPIO_PIN_3
+#define SD_CD_GPIO_Port GPIOD
+#define SD_WR_Pin GPIO_PIN_6
+#define SD_WR_GPIO_Port GPIOD
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

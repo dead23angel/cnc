@@ -1,0 +1,7 @@
+gcode.c:45:8:strtod_M	48	static
+gcode.c:69:12:read_double	32	static
+gcode.c:82:12:next_statement	24	static
+gcode.c:96:6:gc_init	16	static
+gcode.c:107:15:to_millimeters	24	static
+gcode.c:111:13:mc_arc	280	static
+gcode.c:228:9:gc_execute_line	200	static
