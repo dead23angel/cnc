@@ -1,8 +1,5 @@
-Middlewares/Third_Party/FatFs/src/option/syscall.o: \
- ../Middlewares/Third_Party/FatFs/src/option/syscall.c \
- ../Middlewares/Third_Party/FatFs/src/option/../ff.h \
- ../Middlewares/Third_Party/FatFs/src/option/../integer.h ../Inc/ffconf.h \
- ../Inc/main.h ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
+Src/stepmotor.o: ../Src/stepmotor.c ../Inc/global.h ../Inc/main.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
@@ -35,14 +32,19 @@ Middlewares/Third_Party/FatFs/src/option/syscall.o: \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_sdmmc.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../Inc/bsp_driver_sd.h ../Inc/fatfs_platform.h
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h ../Inc/fatfs.h \
+ ../Middlewares/Third_Party/FatFs/src/ff.h \
+ ../Middlewares/Third_Party/FatFs/src/integer.h ../Inc/ffconf.h \
+ ../Inc/bsp_driver_sd.h ../Inc/fatfs_platform.h \
+ ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h \
+ ../Middlewares/Third_Party/FatFs/src/diskio.h \
+ ../Middlewares/Third_Party/FatFs/src/ff.h ../Inc/sd_diskio.h \
+ ../Inc/rtc.h ../Inc/sdio.h ../Inc/tim.h ../Inc/usart.h ../Inc/gpio.h \
+ ../Inc/fsmc.h ../Inc/hw_config.h ../Inc/delay.h ../Inc/scr_io.h \
+ ../Inc/lcd.h ../Inc/keyboard.h ../Inc/gcode.h ../Inc/stepmotor.h \
+ ../Inc/limits.h ../Inc/encoder.h
 
-../Middlewares/Third_Party/FatFs/src/option/../ff.h:
-
-../Middlewares/Third_Party/FatFs/src/option/../integer.h:
-
-../Inc/ffconf.h:
+../Inc/global.h:
 
 ../Inc/main.h:
 
@@ -114,6 +116,52 @@ Middlewares/Third_Party/FatFs/src/option/syscall.o: \
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 
+../Inc/fatfs.h:
+
+../Middlewares/Third_Party/FatFs/src/ff.h:
+
+../Middlewares/Third_Party/FatFs/src/integer.h:
+
+../Inc/ffconf.h:
+
 ../Inc/bsp_driver_sd.h:
 
 ../Inc/fatfs_platform.h:
+
+../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h:
+
+../Middlewares/Third_Party/FatFs/src/diskio.h:
+
+../Middlewares/Third_Party/FatFs/src/ff.h:
+
+../Inc/sd_diskio.h:
+
+../Inc/rtc.h:
+
+../Inc/sdio.h:
+
+../Inc/tim.h:
+
+../Inc/usart.h:
+
+../Inc/gpio.h:
+
+../Inc/fsmc.h:
+
+../Inc/hw_config.h:
+
+../Inc/delay.h:
+
+../Inc/scr_io.h:
+
+../Inc/lcd.h:
+
+../Inc/keyboard.h:
+
+../Inc/gcode.h:
+
+../Inc/stepmotor.h:
+
+../Inc/limits.h:
+
+../Inc/encoder.h:

@@ -1,4 +1,4 @@
-#include "main.h"
+#include "global.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -107,7 +107,7 @@ void cnc_gfile(char *fileName, int mode) {
 	res = f_open(&fid, fileName, FA_READ);
 	if(res != FR_OK) {
 		win_showErrorWin();
-		scr_printf("Error open file:'%s'\nStatus:%d [%d]", fileName, (int)res, sdstatus);
+		scr_printf("Error open file:'%s'\nStatus:%d", fileName, (int)res);
 		return;
 	}
 

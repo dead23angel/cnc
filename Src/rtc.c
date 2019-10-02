@@ -21,7 +21,13 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
-
+RTC_InitTypeDef   RTC_InitStructure;
+RTC_TimeTypeDef   RTC_TimeStructure;
+RTC_DateTypeDef   RTC_DateStructure;
+__IO uint32_t AsynchPrediv = 0;
+__IO uint32_t SynchPrediv = 0;
+//__IO uint32_t TimeDisplay = 0;
+static const uint8_t DaysInMonth[] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;

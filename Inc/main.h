@@ -87,10 +87,22 @@ uint16_t calcColor(uint8_t val);
 #define ROW_1_GPIO_Port GPIOC
 #define ROW_0_Pin GPIO_PIN_3
 #define ROW_0_GPIO_Port GPIOC
-#define LED_0_Pin GPIO_PIN_6
-#define LED_0_GPIO_Port GPIOA
-#define LED_1_Pin GPIO_PIN_7
-#define LED_1_GPIO_Port GPIOA
+#define M0_DIR_Pin GPIO_PIN_0
+#define M0_DIR_GPIO_Port GPIOA
+#define M0_STEP_Pin GPIO_PIN_1
+#define M0_STEP_GPIO_Port GPIOA
+#define M1_DIR_Pin GPIO_PIN_2
+#define M1_DIR_GPIO_Port GPIOA
+#define M1_STEP_Pin GPIO_PIN_3
+#define M1_STEP_GPIO_Port GPIOA
+#define M2_DIR_Pin GPIO_PIN_6
+#define M2_DIR_GPIO_Port GPIOA
+#define M2_STEP_Pin GPIO_PIN_7
+#define M2_STEP_GPIO_Port GPIOA
+#define M3_DIR_Pin GPIO_PIN_5
+#define M3_DIR_GPIO_Port GPIOC
+#define M3_STEP_Pin GPIO_PIN_0
+#define M3_STEP_GPIO_Port GPIOB
 #define LCD_BL_Pin GPIO_PIN_1
 #define LCD_BL_GPIO_Port GPIOB
 #define LIMIT_X_Pin GPIO_PIN_12
@@ -103,6 +115,8 @@ uint16_t calcColor(uint8_t val);
 #define SD_CD_GPIO_Port GPIOD
 #define SD_WR_Pin GPIO_PIN_6
 #define SD_WR_GPIO_Port GPIOD
+#define M_EN_Pin GPIO_PIN_1
+#define M_EN_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

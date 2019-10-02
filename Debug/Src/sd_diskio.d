@@ -37,9 +37,7 @@ Src/sd_diskio.o: ../Src/sd_diskio.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../Inc/hw_config.h ../Inc/delay.h ../Inc/scr_io.h ../Inc/lcd.h \
- ../Inc/keyboard.h ../Inc/gcode.h ../Inc/limits.h ../Inc/bsp_driver_sd.h \
- ../Inc/fatfs_platform.h ../Inc/sd_diskio.h
+ ../Inc/bsp_driver_sd.h ../Inc/fatfs_platform.h ../Inc/sd_diskio.h
 
 ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h:
 
@@ -120,20 +118,6 @@ Src/sd_diskio.o: ../Src/sd_diskio.c \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
-
-../Inc/hw_config.h:
-
-../Inc/delay.h:
-
-../Inc/scr_io.h:
-
-../Inc/lcd.h:
-
-../Inc/keyboard.h:
-
-../Inc/gcode.h:
-
-../Inc/limits.h:
 
 ../Inc/bsp_driver_sd.h:
 

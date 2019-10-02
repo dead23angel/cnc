@@ -30,13 +30,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
-#include "hw_config.h"
-#include "delay.h"
-#include "scr_io.h"
-#include "keyboard.h"
-#include "gcode.h"
-#include "limits.h"
+#include <string.h>
+#include "global.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -135,7 +130,7 @@ static void initSmParam(int8_t isSaveFile) {
 	f_unlink(CONF_FILE_NAME);
 	if((fres = f_open(&fid, CONF_FILE_NAME, FA_CREATE_ALWAYS | FA_WRITE)) != FR_OK) {
 		win_showErrorWin();
-		scr_printf("Error save file:'%s'\n Status:%d [%d/%d]", CONF_FILE_NAME, fres, sdstatus, SD_step);
+		scr_printf("Error save file:'%s'\n Status:%d", CONF_FILE_NAME, fres);
 		scr_puts("\n\n\t PRESS C-KEY");
 		while(kbd_getKey() != KEY_C);
 		return;
@@ -199,15 +194,15 @@ static void readFileList(void) {
 	if((fres = f_opendir(&dirs, path)) != FR_OK) showCriticalStatus(" f_opendir()\n  error [code:%d]\n  Only RESET possible at now", fres);
 	scr_puts("\nRead file list from SD");
 	static char lfn[_MAX_LFN + 1];
-	finfo.lfname = lfn;
-	finfo.lfsize = sizeof(lfn);
+//	finfo.fname = lfn; TODO
+	finfo.fsize = sizeof(lfn);
 	for(fileListSz = 0; f_readdir(&dirs, &finfo) == FR_OK && fileListSz < MAX_FILE_LIST_SZ;) {
 		scr_gotoxy(0, 3);
 		scr_printf("files:[%d]", fileListSz);
 		if(!finfo.fname[0]) break;
 		if(finfo.fname[0] == '.') continue;
-		if(!(finfo.fattrib & AM_DIR) && strcmp(CONF_FILE_NAME, *finfo.lfname? finfo.lfname:finfo.fname) != 0) {
-			strncpy(&fileList[fileListSz++][0], *finfo.lfname? finfo.lfname:finfo.fname, MAX_FILE_NAME_SZ);
+		if(!(finfo.fattrib & AM_DIR) && strcmp(CONF_FILE_NAME, *finfo.fname? finfo.fname:finfo.fname) != 0) {
+			strncpy(&fileList[fileListSz++][0], *finfo.fname? finfo.fname:finfo.fname, MAX_FILE_NAME_SZ);
 		}
 	}
 	if(loadedFileName[0] != 0) { // set last loaded file as selected file
@@ -335,7 +330,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-
+  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -475,7 +470,7 @@ int main(void)
 	  				break;
 	  			//------------------------------------------
 	  			case KEY_3:
-	  				if(!(SD_WP_PORT->IDR & SD_WP_PIN)){
+	  				if(HAL_GPIO_ReadPin(SD_WR_GPIO_Port, SD_WR_Pin) == GPIO_PIN_SET) {
 	  					if(questionYesNo("Delete file:\n'%s'?", &fileList[curFile][0])) {
 	  						rereadDir = TRUE;
 	  						f_unlink(&fileList[curFile][0]);
@@ -508,7 +503,7 @@ int main(void)
 	  				FIL fid;
 	  				FRESULT fres = f_open(&fid, &fileList[curFile][0], FA_READ);
 	  				if(fres != FR_OK) {
-	  					scr_printf("Error open file: '%s'\nStatus:%d [%d]", &fileList[curFile][0], fres, sdstatus);
+	  					scr_printf("Error open file: '%s'\nStatus:%d", &fileList[curFile][0], fres);
 	  				} else {
 	  					scr_fontColorInvers();
 	  					scr_setScrollOn(FALSE);
@@ -544,7 +539,7 @@ int main(void)
 	  			//------------------------------------------
 	  			case KEY_7:
 	  				win_showMsgWin();
-	  				if(!(SD_WP_PORT->IDR & SD_WP_PIN)){
+	  				if(HAL_GPIO_ReadPin(SD_WR_GPIO_Port, SD_WR_Pin) == GPIO_PIN_SET) {
 	  					initSmParam(true);
 	  				} else {
 	  					scr_gotoxy(6,2);
@@ -559,9 +554,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	HAL_GPIO_TogglePin(LED_0_GPIO_Port, LED_0_Pin);
-	HAL_GPIO_TogglePin(LED_1_GPIO_Port, LED_1_Pin);
-	HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }
@@ -576,11 +568,11 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage
+  /** Configure the main internal regulator output voltage 
   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-  /** Initializes the CPU, AHB and APB busses clocks
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -595,7 +587,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;

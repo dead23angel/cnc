@@ -1,0 +1,11 @@
+stepmotor.c:23:13:stepm_powerOff	16	static
+stepmotor.c:33:6:stepm_init	16	static
+stepmotor.c:48:6:stepm_proc	24	static,ignoring_inline_asm
+stepmotor.c:157:6:stepm_EmergeStop	16	static
+stepmotor.c:166:6:stepm_addMove	48	static,ignoring_inline_asm
+stepmotor.c:203:9:stepm_getRemainLines	4	static
+stepmotor.c:207:9:stepm_inProc	16	static
+stepmotor.c:214:10:stepm_LinesBufferIsFull	4	static
+stepmotor.c:218:9:stepm_getCurGlobalStepsNum	16	static
+stepmotor.c:222:6:stepm_ZeroGlobalCrd	16	static
+stepmotor.c:228:6:step_dump	32	static

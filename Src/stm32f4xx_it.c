@@ -23,6 +23,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "global.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -191,7 +192,27 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
+  static uint16_t cnt=0, kbdCnt = 0; //, extruderTemperatureCnt = 0;
+  static uint8_t flip=0;
 
+  cnt++;
+
+  if( cnt >= 500 ) {
+	  cnt = 0;
+  	  if ( flip ) {
+  		  //GPIOB->BSRR = GPIO_Pin_5;
+  	  }	else {
+  		  //GPIOB->BRR = GPIO_Pin_5;
+  	  }
+
+  	  flip = !flip;
+  }
+
+  kbdCnt++;
+  if(kbdCnt >= 12) {
+	  kbdCnt = 0;
+	  kbd_proc();
+  }
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -225,7 +246,8 @@ void TIM2_IRQHandler(void)
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
-
+  __NVIC_ClearPendingIRQ(TIM2_IRQn);
+  stepm_proc(0);
   /* USER CODE END TIM2_IRQn 1 */
 }
 
@@ -239,7 +261,8 @@ void TIM3_IRQHandler(void)
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
-
+  __NVIC_ClearPendingIRQ(TIM3_IRQn);
+  stepm_proc(1);
   /* USER CODE END TIM3_IRQn 1 */
 }
 
@@ -253,7 +276,8 @@ void TIM4_IRQHandler(void)
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
   /* USER CODE BEGIN TIM4_IRQn 1 */
-
+  __NVIC_ClearPendingIRQ(TIM4_IRQn);
+  stepm_proc(2);
   /* USER CODE END TIM4_IRQn 1 */
 }
 
@@ -295,7 +319,8 @@ void TIM5_IRQHandler(void)
   /* USER CODE END TIM5_IRQn 0 */
   HAL_TIM_IRQHandler(&htim5);
   /* USER CODE BEGIN TIM5_IRQn 1 */
-
+  __NVIC_ClearPendingIRQ(TIM5_IRQn);
+  stepm_proc(3);
   /* USER CODE END TIM5_IRQn 1 */
 }
 

@@ -1,0 +1,11 @@
+gcode_exec.c:65:14:crdXtoScr	24	static
+gcode_exec.c:67:14:crdYtoScr	32	static
+gcode_exec.c:72:13:initGcodeProc	32	static
+gcode_exec.c:101:6:cnc_gfile	704	static
+gcode_exec.c:218:10:calcColor	16	static
+gcode_exec.c:228:6:cnc_dwell	16	static
+gcode_exec.c:234:16:cnc_waitSMotorReady	40	static
+gcode_exec.c:312:16:sendLine	88	static
+gcode_exec.c:536:9:smothLine	456	static
+gcode_exec.c:898:9:cnc_line	112	static
+gcode_exec.c:935:6:cnc_end	4	static

@@ -1,8 +1,8 @@
-#include "main.h"
+#include "global.h"
 
 void SystemStartup(void) {
 //	rs232_init();
-//	stepm_init();
+	stepm_init();
 //	spindle_init();
 	#ifdef HAS_ENCODER
 		encoder_int();

@@ -32,9 +32,7 @@ Src/usart.o: ../Src/usart.c ../Inc/usart.h ../Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_sdmmc.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../Inc/hw_config.h ../Inc/delay.h ../Inc/scr_io.h ../Inc/lcd.h \
- ../Inc/keyboard.h ../Inc/limits.h
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 
 ../Inc/usart.h:
 
@@ -107,15 +105,3 @@ Src/usart.o: ../Src/usart.c ../Inc/usart.h ../Inc/main.h \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
-
-../Inc/hw_config.h:
-
-../Inc/delay.h:
-
-../Inc/scr_io.h:
-
-../Inc/lcd.h:
-
-../Inc/keyboard.h:
-
-../Inc/limits.h:

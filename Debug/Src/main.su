@@ -1,0 +1,11 @@
+main.c:80:7:str_trim	24	static
+main.c:89:13:initSmParam	864	static
+main.c:154:13:showStatusString	40	static
+main.c:178:6:showCriticalStatus	16	static
+main.c:185:13:readFileList	144	static
+main.c:225:13:drawFileList	32	static
+main.c:240:9:questionYesNo	16	static
+main.c:253:13:setTime	48	static
+main.c:328:5:main	784	static,ignoring_inline_asm
+main.c:565:6:SystemClock_Config	104	static
+main.c:619:6:Error_Handler	4	static
